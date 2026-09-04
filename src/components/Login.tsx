@@ -39,7 +39,7 @@ export default function Login() {
         <div className="brand">
           <span className="brand-mark" aria-hidden="true">A</span>
           <h1>Amica Zeiterfassung</h1>
-          <p className="subtitle">Senioren-Alltagshilfe Becker</p>
+          <p className="subtitle">Alltagshilfe Becker</p>
         </div>
 
         {/* Verstecktes Feld: nur damit Passwortmanager den Eintrag zuordnen koennen. */}

@@ -12,6 +12,11 @@
 
 * { box-sizing: border-box; }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -22,14 +27,18 @@ body {
 }
 
 .login {
+  min-height: 100vh;
   min-height: 100dvh;
-  display: grid;
-  place-items: center;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 24px;
 }
 
 .card {
-  width: min(100%, 380px);
+  width: 100%;
+  max-width: 380px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: 18px;

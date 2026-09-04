@@ -49,8 +49,36 @@ Empfehlung: In den Auth-Einstellungen die Selbstregistrierung
 (*Allow new users to sign up*) deaktivieren, damit wirklich nur dieses eine
 Konto existiert.
 
+## Funktionen
+
+**Startseite — Klienten**
+- Übersicht aller Klienten mit Foto, Name und wichtigen Informationen
+- Klienten anlegen (Name, Freitext-Informationen, optionales Foto)
+- Klienten löschen; die erfassten Zeiten werden dabei mitgelöscht
+
+**Klientenseite — Zeiten**
+- Zeiterfassung je Klient: Datum, Von/Bis, die Dauer wird berechnet
+- Freitextfeld für eine kurze Information zum Einsatz
+- Unterschriftenfeld: öffnet ein Fenster, in dem der Kunde mit dem Finger
+  unterschreibt (Pointer Events, funktioniert mit Finger, Stift und Maus)
+- Einträge sind nach Monat gruppiert, je Monat mit Stundensumme
+
+## Datenmodell
+
+| Tabelle | Zweck |
+| --- | --- |
+| `clients` | Klienten: Name, Informationen, Pfad zum Foto |
+| `time_entries` | Zeiteinträge je Klient inkl. Notiz und Unterschrift |
+
+Beide Tabellen haben Row Level Security: nur angemeldete Zugriffe sind
+erlaubt, anonyme sehen nichts.
+
+Klientenfotos liegen im **privaten** Storage-Bucket `client-photos` und
+werden nur über kurzlebige signierte Links ausgeliefert — es handelt sich um
+Personendaten, die nicht öffentlich abrufbar sein sollen. Unterschriften
+werden als PNG direkt am Zeiteintrag gespeichert.
+
 ## Nächste Schritte
 
-- Tabellen für Klienten, Einsätze und Zeiteinträge
-- Erfassungsansicht (Start/Stopp bzw. manuelle Eingabe)
-- Monatsauswertung als Export
+- Zeiteinträge nachträglich bearbeiten
+- Monatsauswertung als PDF- oder Excel-Export

@@ -11,6 +11,7 @@ import {
 } from '../lib/format'
 import Klientenfoto from './Klientenfoto'
 import Unterschriftsfeld from './Unterschriftsfeld'
+import Aktionsmenue from './Aktionsmenue'
 
 type Props = {
   klient: Klient
@@ -197,7 +198,13 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
                 <li key={eintrag.id} className="karte eintrag">
                   <div className="eintrag-kopf">
                     <span className="eintrag-datum">{formatiereDatum(eintrag.entry_date)}</span>
-                    <span className="eintrag-dauer">{formatiereDauer(eintrag.minutes)}</span>
+                    <span className="eintrag-kopf-rechts">
+                      <span className="eintrag-dauer">{formatiereDauer(eintrag.minutes)}</span>
+                      <Aktionsmenue
+                        label={`Aktionen für Eintrag vom ${formatiereDatum(eintrag.entry_date)}`}
+                        onLoeschen={() => eintragLoeschen(eintrag)}
+                      />
+                    </span>
                   </div>
 
                   {eintrag.start_time && eintrag.end_time && (
@@ -216,13 +223,6 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
                     />
                   )}
 
-                  <button
-                    type="button"
-                    className="ghost schmal loeschen"
-                    onClick={() => eintragLoeschen(eintrag)}
-                  >
-                    Löschen
-                  </button>
                 </li>
               ))}
             </ul>

@@ -424,3 +424,61 @@ input[type="file"] {
 }
 
 .knopfreihe .primary { padding: 12px 20px; }
+
+/* --- Drei-Punkte-Aktionsmenü --- */
+
+.aktionsmenue {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.aktionsmenue-knopf {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  font-size: 22px;
+  line-height: 1;
+  border-radius: 10px;
+}
+
+.aktionsmenue-knopf:hover,
+.aktionsmenue-knopf[aria-expanded="true"] {
+  background: var(--bg);
+}
+
+.aktionsmenue-liste {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  z-index: 5;
+  min-width: 140px;
+  padding: 6px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(35, 48, 47, 0.15);
+}
+
+.aktionsmenue-eintrag {
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  text-align: left;
+  font-size: 15px;
+}
+
+.aktionsmenue-eintrag:hover { background: var(--bg); }
+
+.aktionsmenue-eintrag.loeschen { color: var(--danger); }
+
+.eintrag-kopf-rechts {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}

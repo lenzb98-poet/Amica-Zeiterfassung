@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Klient } from '../lib/typen'
 import Klientenfoto from './Klientenfoto'
+import Aktionsmenue from './Aktionsmenue'
 
 type Props = {
   onKlientOeffnen: (klient: Klient) => void
@@ -175,14 +176,10 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
                   {klient.info && <span className="klient-info">{klient.info}</span>}
                 </span>
               </button>
-              <button
-                type="button"
-                className="ghost loeschen"
-                onClick={() => klientLoeschen(klient)}
-                aria-label={`${klient.name} löschen`}
-              >
-                Löschen
-              </button>
+              <Aktionsmenue
+                label={`Aktionen für ${klient.name}`}
+                onLoeschen={() => klientLoeschen(klient)}
+              />
             </li>
           ))}
         </ul>

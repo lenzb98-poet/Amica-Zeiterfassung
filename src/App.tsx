@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from './lib/supabase'
 import type { Klient } from './lib/typen'
@@ -6,10 +6,14 @@ import Login from './components/Login'
 import Klientenliste from './components/Klientenliste'
 import Klientenseite from './components/Klientenseite'
 
+const VERLAUFS_ZUSTAND = 'klient-details'
+
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [ready, setReady] = useState(false)
   const [offenerKlient, setOffenerKlient] = useState<Klient | null>(null)
+  const offenerKlientRef = useRef(offenerKlient)
+  offenerKlientRef.current = offenerKlient
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -23,6 +27,31 @@ export default function App() {
     })
 
     return () => listener.subscription.unsubscribe()
+  }, [])
+
+  useEffect(() => {
+    // Ohne eigenen Verlaufseintrag verlässt ein Zurück-Wisch (iPad/iPhone)
+    // sofort die ganze Seite. Der Eintrag sorgt dafür, dass ein Wisch
+    // zunächst nur die Klientenseite schließt.
+    function beiZurueck() {
+      if (offenerKlientRef.current) setOffenerKlient(null)
+    }
+
+    window.addEventListener('popstate', beiZurueck)
+    return () => window.removeEventListener('popstate', beiZurueck)
+  }, [])
+
+  const klientOeffnen = useCallback((klient: Klient) => {
+    window.history.pushState(VERLAUFS_ZUSTAND, '')
+    setOffenerKlient(klient)
+  }, [])
+
+  const zurZurListe = useCallback(() => {
+    if (window.history.state === VERLAUFS_ZUSTAND) {
+      window.history.back()
+    } else {
+      setOffenerKlient(null)
+    }
   }, [])
 
   if (!ready) {
@@ -47,9 +76,9 @@ export default function App() {
       </header>
 
       {offenerKlient ? (
-        <Klientenseite klient={offenerKlient} onZurueck={() => setOffenerKlient(null)} />
+        <Klientenseite klient={offenerKlient} onZurueck={zurZurListe} />
       ) : (
-        <Klientenliste onKlientOeffnen={setOffenerKlient} />
+        <Klientenliste onKlientOeffnen={klientOeffnen} />
       )}
     </main>
   )

@@ -4,11 +4,84 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#2f6f6b" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/svg+xml" href="./favicon.svg" />
     <title>Amica Zeiterfassung</title>
+    <style>
+      #boot-error {
+        display: none;
+        min-height: 100dvh;
+        box-sizing: border-box;
+        padding: 24px;
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        background: #f4f2ee;
+        color: #23302f;
+      }
+      #boot-error .box {
+        max-width: 480px;
+        margin: 40px auto 0;
+        background: #fff;
+        border: 1px solid #e2ded7;
+        border-radius: 18px;
+        padding: 24px;
+      }
+      #boot-error h1 { font-size: 20px; margin: 0 0 12px; }
+      #boot-error p { margin: 0 0 12px; line-height: 1.5; }
+      #boot-error pre {
+        white-space: pre-wrap;
+        word-break: break-word;
+        background: #fbfaf8;
+        border: 1px solid #e2ded7;
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 13px;
+      }
+    </style>
+    <script>
+      // Fängt Startfehler ab, die auftreten, bevor React überhaupt lädt
+      // (z. B. wenn die Skriptdatei nicht gefunden wird). Ohne das bleibt
+      // die Seite in so einem Fall komplett weiß, auch ohne Zugriff auf
+      // die Browserkonsole (z. B. auf dem iPad).
+      (function () {
+        var shown = false;
+        function zeigeFehler(text) {
+          if (shown) return;
+          shown = true;
+          var el = document.getElementById('boot-error');
+          var pre = document.getElementById('boot-error-text');
+          if (el && pre) {
+            pre.textContent = text;
+            el.style.display = 'block';
+          }
+        }
+        window.addEventListener('error', function (e) {
+          zeigeFehler((e.message || 'Unbekannter Fehler') + '\n' + (e.filename || ''));
+        });
+        window.addEventListener('unhandledrejection', function (e) {
+          zeigeFehler(String((e.reason && e.reason.message) || e.reason || 'Unbekannter Fehler'));
+        });
+        // Wenn nach 6 Sekunden weder die App noch eine Fehlermeldung da ist,
+        // ist vermutlich das Skript selbst nicht geladen worden.
+        window.setTimeout(function () {
+          var root = document.getElementById('root');
+          if (!shown && root && root.childElementCount === 0) {
+            zeigeFehler(
+              'Die Anwendung wurde nicht geladen (Zeitüberschreitung).\n' +
+              'Mögliche Ursache: die Skriptdatei wurde nicht gefunden.',
+            );
+          }
+        }, 6000);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <div id="boot-error" role="alert">
+      <div class="box">
+        <h1>Die Seite konnte nicht starten</h1>
+        <p>Bitte einmal neu laden. Bleibt der Fehler bestehen, diesen Text weitergeben:</p>
+        <pre id="boot-error-text"></pre>
+      </div>
+    </div>
+    <script type="module" src="./src/main.tsx"></script>
   </body>
 </html>

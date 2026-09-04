@@ -14,20 +14,26 @@ Anmelden ausschließlich das Passwort abgefragt.
 
 ```bash
 npm install
-cp .env.example .env   # wichtig: ohne .env startet die App nicht
 npm run dev
 ```
 
-Die Datei `.env` ist bewusst nicht eingecheckt. Fehlt sie, zeigt die App
-statt einer weißen Seite einen Hinweis, welche Werte fehlen.
+Die Supabase-Projekt-URL und der öffentliche Publishable Key sind fest im
+Code hinterlegt (`src/lib/supabase.ts`) — beides ist laut Supabase für den
+Browser gedacht und nicht geheim, der Zugriffsschutz läuft über Row Level
+Security. Für einen abweichenden Zugang lässt sich optional eine `.env`
+(siehe `.env.example`) anlegen, die diese Werte überschreibt.
 
-Variablen in `.env`:
+## Bereitstellung auf GitHub Pages
 
-| Variable | Bedeutung |
-| --- | --- |
-| `VITE_SUPABASE_URL` | URL des Supabase-Projekts |
-| `VITE_SUPABASE_ANON_KEY` | Publishable Key (öffentlich, unkritisch) |
-| `VITE_APP_USER_EMAIL` | Konto des einzigen Benutzers — wird intern beim Login verwendet |
+Ein Workflow (`.github/workflows/deploy-pages.yml`) baut die App bei jedem
+Push auf `main` und veröffentlicht sie automatisch auf GitHub Pages.
+Einmalig einzurichten: **Settings → Pages → Build and deployment → Source**
+auf **GitHub Actions** stellen.
+
+Wichtig: GitHub Pages liefert nur statische Dateien aus. Der Quellcode
+(`src/`) läuft im Browser nicht direkt — es muss immer der **Build**
+(`dist/`, per Workflow oder `npm run build`) veröffentlicht werden, nicht
+der Rohcode.
 
 ## Benutzer anlegen (einmalig)
 

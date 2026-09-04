@@ -14,9 +14,12 @@ Anmelden ausschließlich das Passwort abgefragt.
 
 ```bash
 npm install
-cp .env.example .env   # Werte prüfen
+cp .env.example .env   # wichtig: ohne .env startet die App nicht
 npm run dev
 ```
+
+Die Datei `.env` ist bewusst nicht eingecheckt. Fehlt sie, zeigt die App
+statt einer weißen Seite einen Hinweis, welche Werte fehlen.
 
 Variablen in `.env`:
 

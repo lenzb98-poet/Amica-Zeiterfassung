@@ -1,13 +1,16 @@
 import { useEffect, useState } from 'react'
 import type { Session } from '@supabase/supabase-js'
-import { supabase } from './lib/supabase'
+import { supabase, missingConfig } from './lib/supabase'
 import Login from './components/Login'
+import SetupHinweis from './components/SetupHinweis'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    if (missingConfig.length) return
+
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session)
       setReady(true)
@@ -19,6 +22,10 @@ export default function App() {
 
     return () => listener.subscription.unsubscribe()
   }, [])
+
+  if (missingConfig.length) {
+    return <SetupHinweis fehlend={missingConfig} />
+  }
 
   if (!ready) {
     return (

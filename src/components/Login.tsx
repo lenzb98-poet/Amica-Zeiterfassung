@@ -42,6 +42,16 @@ export default function Login() {
           <p className="subtitle">Senioren-Alltagshilfe Becker</p>
         </div>
 
+        {/* Verstecktes Feld: nur damit Passwortmanager den Eintrag zuordnen koennen. */}
+        <input
+          type="text"
+          name="username"
+          value={APP_USER_EMAIL}
+          autoComplete="username"
+          readOnly
+          hidden
+        />
+
         <label className="field" htmlFor="password">
           Passwort
           <div className="input-row">

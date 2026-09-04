@@ -1,20 +1,23 @@
-import { createClient } from '@supabase/supabase-js'
+import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 
 const url = import.meta.env.VITE_SUPABASE_URL
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-if (!url || !anonKey) {
-  throw new Error(
-    'Supabase ist nicht konfiguriert. Bitte VITE_SUPABASE_URL und VITE_SUPABASE_ANON_KEY in .env setzen.',
-  )
-}
+/** Fehlende Werte werden in der Oberfläche gemeldet, nicht als weiße Seite. */
+export const missingConfig: string[] = [
+  ...(url ? [] : ['VITE_SUPABASE_URL']),
+  ...(anonKey ? [] : ['VITE_SUPABASE_ANON_KEY']),
+  ...(import.meta.env.VITE_APP_USER_EMAIL ? [] : ['VITE_APP_USER_EMAIL']),
+]
 
-export const supabase = createClient(url, anonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-  },
-})
+export const supabase: SupabaseClient = missingConfig.length
+  ? (null as unknown as SupabaseClient)
+  : createClient(url, anonKey, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+      },
+    })
 
 /**
  * Die App hat nur einen Benutzer. Deshalb ist die E-Mail fest hinterlegt und

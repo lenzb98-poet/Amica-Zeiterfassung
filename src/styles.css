@@ -482,3 +482,17 @@ input[type="file"] {
   align-items: center;
   gap: 4px;
 }
+
+.feld-mit-aktion {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.feld-mit-aktion .hinweis { font-size: 14px; }
+
+.formular-knoepfe { justify-content: flex-start; }
+
+.formular-knoepfe .primary { flex: 1; }

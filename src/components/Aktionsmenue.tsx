@@ -3,14 +3,15 @@ import { useEffect, useRef, useState } from 'react'
 type Props = {
   /** Beschriftung für Screenreader, z. B. "Aktionen für Erika Mustermann". */
   label: string
+  onBearbeiten?: () => void
   onLoeschen: () => void
 }
 
 /**
- * Drei-Punkte-Menü, das eine "Löschen"-Aktion verbirgt, damit sie nicht
- * versehentlich angetippt wird.
+ * Drei-Punkte-Menü, das "Bearbeiten"- und "Löschen"-Aktionen verbirgt,
+ * damit sie nicht versehentlich angetippt werden.
  */
-export default function Aktionsmenue({ label, onLoeschen }: Props) {
+export default function Aktionsmenue({ label, onBearbeiten, onLoeschen }: Props) {
   const [offen, setOffen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
 
@@ -41,6 +42,19 @@ export default function Aktionsmenue({ label, onLoeschen }: Props) {
 
       {offen && (
         <div className="aktionsmenue-liste" role="menu">
+          {onBearbeiten && (
+            <button
+              type="button"
+              role="menuitem"
+              className="aktionsmenue-eintrag"
+              onClick={() => {
+                setOffen(false)
+                onBearbeiten()
+              }}
+            >
+              Bearbeiten
+            </button>
+          )}
           <button
             type="button"
             role="menuitem"

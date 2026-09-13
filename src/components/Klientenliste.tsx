@@ -13,10 +13,12 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   const [laedt, setLaedt] = useState(true)
   const [fehler, setFehler] = useState<string | null>(null)
   const [formularOffen, setFormularOffen] = useState(false)
+  const [bearbeiteterKlient, setBearbeiteterKlient] = useState<Klient | null>(null)
 
   const [name, setName] = useState('')
   const [info, setInfo] = useState('')
   const [foto, setFoto] = useState<File | null>(null)
+  const [fotoEntfernen, setFotoEntfernen] = useState(false)
   const [speichert, setSpeichert] = useState(false)
 
   useEffect(() => {
@@ -43,7 +45,42 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setName('')
     setInfo('')
     setFoto(null)
+    setFotoEntfernen(false)
     setFormularOffen(false)
+    setBearbeiteterKlient(null)
+  }
+
+  function formularZumAnlegenOeffnen() {
+    if (formularOffen && !bearbeiteterKlient) {
+      formularZuruecksetzen()
+      return
+    }
+    setBearbeiteterKlient(null)
+    setName('')
+    setInfo('')
+    setFoto(null)
+    setFotoEntfernen(false)
+    setFormularOffen(true)
+  }
+
+  function formularZumBearbeitenOeffnen(klient: Klient) {
+    setBearbeiteterKlient(klient)
+    setName(klient.name)
+    setInfo(klient.info ?? '')
+    setFoto(null)
+    setFotoEntfernen(false)
+    setFormularOffen(true)
+  }
+
+  async function ladeFotoHoch(datei: File): Promise<string | null> {
+    const endung = datei.name.split('.').pop()?.toLowerCase() || 'jpg'
+    const pfad = `${crypto.randomUUID()}.${endung}`
+    const { error: uploadFehler } = await supabase.storage
+      .from('client-photos')
+      .upload(pfad, datei, { contentType: datei.type })
+
+    if (uploadFehler) return null
+    return pfad
   }
 
   async function klientAnlegen(event: FormEvent) {
@@ -56,18 +93,12 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     let fotoPfad: string | null = null
 
     if (foto) {
-      const endung = foto.name.split('.').pop()?.toLowerCase() || 'jpg'
-      const pfad = `${crypto.randomUUID()}.${endung}`
-      const { error: uploadFehler } = await supabase.storage
-        .from('client-photos')
-        .upload(pfad, foto, { contentType: foto.type })
-
-      if (uploadFehler) {
+      fotoPfad = await ladeFotoHoch(foto)
+      if (!fotoPfad) {
         setFehler('Das Foto konnte nicht hochgeladen werden.')
         setSpeichert(false)
         return
       }
-      fotoPfad = pfad
     }
 
     const { error } = await supabase.from('clients').insert({
@@ -80,6 +111,49 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
       setFehler('Der Klient konnte nicht gespeichert werden.')
       setSpeichert(false)
       return
+    }
+
+    formularZuruecksetzen()
+    setSpeichert(false)
+    await ladeKlienten()
+  }
+
+  async function klientAktualisieren(event: FormEvent) {
+    event.preventDefault()
+    if (speichert || !name.trim() || !bearbeiteterKlient) return
+
+    setSpeichert(true)
+    setFehler(null)
+
+    let fotoPfad = bearbeiteterKlient.photo_path
+
+    if (foto) {
+      const neuerPfad = await ladeFotoHoch(foto)
+      if (!neuerPfad) {
+        setFehler('Das Foto konnte nicht hochgeladen werden.')
+        setSpeichert(false)
+        return
+      }
+      fotoPfad = neuerPfad
+    } else if (fotoEntfernen) {
+      fotoPfad = null
+    }
+
+    const { error } = await supabase
+      .from('clients')
+      .update({ name: name.trim(), info: info.trim() || null, photo_path: fotoPfad })
+      .eq('id', bearbeiteterKlient.id)
+
+    if (error) {
+      setFehler('Der Klient konnte nicht gespeichert werden.')
+      setSpeichert(false)
+      return
+    }
+
+    const altesFotoLoeschen =
+      bearbeiteterKlient.photo_path && bearbeiteterKlient.photo_path !== fotoPfad
+    if (altesFotoLoeschen) {
+      await supabase.storage.from('client-photos').remove([bearbeiteterKlient.photo_path!])
     }
 
     formularZuruecksetzen()
@@ -103,6 +177,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     if (klient.photo_path) {
       await supabase.storage.from('client-photos').remove([klient.photo_path])
     }
+    if (bearbeiteterKlient?.id === klient.id) formularZuruecksetzen()
     await ladeKlienten()
   }
 
@@ -110,8 +185,8 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     <section className="seite">
       <header className="seiten-kopf">
         <h2>Klienten</h2>
-        <button className="primary schmal" onClick={() => setFormularOffen((offen) => !offen)}>
-          {formularOffen ? 'Abbrechen' : 'Neuer Klient'}
+        <button className="primary schmal" onClick={formularZumAnlegenOeffnen}>
+          {formularOffen && !bearbeiteterKlient ? 'Abbrechen' : 'Neuer Klient'}
         </button>
       </header>
 
@@ -122,7 +197,12 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
       )}
 
       {formularOffen && (
-        <form className="karte formular" onSubmit={klientAnlegen}>
+        <form
+          className="karte formular"
+          onSubmit={bearbeiteterKlient ? klientAktualisieren : klientAnlegen}
+        >
+          <h3>{bearbeiteterKlient ? 'Klient bearbeiten' : 'Neuer Klient'}</h3>
+
           <label className="field">
             Name
             <input
@@ -144,14 +224,39 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
             />
           </label>
 
+          {bearbeiteterKlient?.photo_path && !fotoEntfernen && !foto && (
+            <div className="feld-mit-aktion">
+              <span className="hinweis">Aktuelles Foto bleibt, wenn kein neues gewählt wird.</span>
+              <button
+                type="button"
+                className="ghost schmal"
+                onClick={() => setFotoEntfernen(true)}
+              >
+                Foto entfernen
+              </button>
+            </div>
+          )}
+
           <label className="field">
-            Foto
-            <input type="file" accept="image/*" onChange={(e) => setFoto(e.target.files?.[0] ?? null)} />
+            {bearbeiteterKlient ? 'Neues Foto' : 'Foto'}
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                setFoto(e.target.files?.[0] ?? null)
+                setFotoEntfernen(false)
+              }}
+            />
           </label>
 
-          <button type="submit" className="primary" disabled={speichert || !name.trim()}>
-            {speichert ? 'Speichern …' : 'Klient anlegen'}
-          </button>
+          <div className="knopfreihe formular-knoepfe">
+            <button type="button" className="ghost" onClick={formularZuruecksetzen}>
+              Abbrechen
+            </button>
+            <button type="submit" className="primary" disabled={speichert || !name.trim()}>
+              {speichert ? 'Speichern …' : bearbeiteterKlient ? 'Änderungen speichern' : 'Klient anlegen'}
+            </button>
+          </div>
         </form>
       )}
 
@@ -178,6 +283,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
               </button>
               <Aktionsmenue
                 label={`Aktionen für ${klient.name}`}
+                onBearbeiten={() => formularZumBearbeitenOeffnen(klient)}
                 onLoeschen={() => klientLoeschen(klient)}
               />
             </li>

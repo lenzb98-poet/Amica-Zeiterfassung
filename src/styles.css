@@ -629,3 +629,6 @@ select {
   border-radius: 6px;
   box-shadow: 0 6px 24px rgba(35, 48, 47, 0.12);
 }
+
+.rechnung-karte { display: flex; align-items: center; gap: 8px; }
+.rechnung-karte .rechnung-knopf { flex: 1; min-width: 0; }

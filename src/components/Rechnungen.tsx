@@ -11,7 +11,8 @@ import {
 } from '../lib/format'
 import { useZurueckWisch } from '../lib/zurueckWisch'
 import RechnungAnsicht from './RechnungAnsicht'
-import Nummernkreis from './Nummernkreis'
+import Nummernkreis, { rechnungsnummer } from './Nummernkreis'
+import Aktionsmenue from './Aktionsmenue'
 
 type OffenerPosten = {
   klient: Klient
@@ -110,6 +111,26 @@ export default function Rechnungen() {
     setOffeneRechnung(data as Rechnung)
   }
 
+  async function rechnungLoeschen(rechnung: Rechnung) {
+    const hoechste = Math.max(...rechnungen.map((r) => r.number_seq))
+    const nummerHinweis =
+      rechnung.number_seq === hoechste
+        ? `Die Nummer ${rechnung.number} wird wieder frei.`
+        : `Die Nummer ${rechnung.number} bleibt eine Lücke, weil danach schon ${rechnungsnummer(hoechste)} erstellt wurde.`
+    const sicher = window.confirm(
+      `Rechnung ${rechnung.number} an ${rechnung.recipient.name} wirklich löschen?\n\n` +
+        `Die abgerechneten Zeiten werden wieder offen und können neu abgerechnet werden. ${nummerHinweis}`,
+    )
+    if (!sicher) return
+
+    const { error } = await supabase.rpc('delete_invoice', { p_invoice_id: rechnung.id })
+    if (error) {
+      setFehler('Die Rechnung konnte nicht gelöscht werden.')
+      return
+    }
+    await laden()
+  }
+
   async function statusUmschalten(rechnung: Rechnung) {
     const bezahlt = rechnung.status === 'offen'
     const aenderung = {
@@ -197,7 +218,7 @@ export default function Rechnungen() {
       ) : (
         <ul className="klientenliste">
           {rechnungen.map((rechnung) => (
-            <li key={rechnung.id} className="karte">
+            <li key={rechnung.id} className="karte rechnung-karte">
               <button
                 type="button"
                 className="rechnung-knopf"
@@ -218,6 +239,10 @@ export default function Rechnungen() {
                   </span>
                 </span>
               </button>
+              <Aktionsmenue
+                label={`Aktionen für Rechnung ${rechnung.number}`}
+                onLoeschen={() => rechnungLoeschen(rechnung)}
+              />
             </li>
           ))}
         </ul>

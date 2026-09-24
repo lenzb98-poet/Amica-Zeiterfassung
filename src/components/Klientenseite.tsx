@@ -204,10 +204,14 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
                     <span className="eintrag-datum">{formatiereDatum(eintrag.entry_date)}</span>
                     <span className="eintrag-kopf-rechts">
                       <span className="eintrag-dauer">{formatiereDauer(eintrag.minutes)}</span>
-                      <Aktionsmenue
-                        label={`Aktionen für Eintrag vom ${formatiereDatum(eintrag.entry_date)}`}
-                        onLoeschen={() => eintragLoeschen(eintrag)}
-                      />
+                      {eintrag.invoice_id ? (
+                        <span className="status status-bezahlt">abgerechnet</span>
+                      ) : (
+                        <Aktionsmenue
+                          label={`Aktionen für Eintrag vom ${formatiereDatum(eintrag.entry_date)}`}
+                          onLoeschen={() => eintragLoeschen(eintrag)}
+                        />
+                      )}
                     </span>
                   </div>
 

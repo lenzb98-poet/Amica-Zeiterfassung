@@ -77,3 +77,37 @@ export function leseBetrag(eingabe: string): number | null {
   if (!bereinigt) return null
   return /^\d+(\.\d{1,2})?$/.test(bereinigt) ? Number(bereinigt) : NaN
 }
+
+const langesDatum = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+
+/** "2026-08-07" → "07.08.2026" */
+export function formatiereDatumLang(isoDatum: string): string {
+  return langesDatum.format(new Date(`${isoDatum}T00:00:00`))
+}
+
+/** 105 Minuten → "1:45" */
+export function formatiereStunden(minuten: number): string {
+  return `${Math.floor(minuten / 60)}:${String(minuten % 60).padStart(2, '0')}`
+}
+
+/** Erster und letzter Tag eines Monats im Format JJJJ-MM-TT. */
+export function monatsgrenzen(monat: string): { start: string; ende: string } {
+  const [jahr, m] = monat.split('-').map(Number)
+  const letzterTag = new Date(jahr, m, 0).getDate()
+  return { start: `${monat}-01`, ende: `${monat}-${String(letzterTag).padStart(2, '0')}` }
+}
+
+/** Vormonat als JJJJ-MM – abgerechnet wird meist zu Beginn des Folgemonats. */
+export function vormonat(): string {
+  const heute = new Date()
+  const d = new Date(heute.getFullYear(), heute.getMonth() - 1, 1)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+}
+
+export function monatsTitel(monat: string): string {
+  return monatsFormat.format(new Date(`${monat}-01T00:00:00`))
+}

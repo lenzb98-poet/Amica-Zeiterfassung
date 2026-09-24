@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
-import type { Klient } from '../lib/typen'
+import { STANDARD_LEISTUNG, type Anrede, type Klient } from '../lib/typen'
 import { formatiereEuro, leseBetrag } from '../lib/format'
 import Klientenfoto from './Klientenfoto'
 import Aktionsmenue from './Aktionsmenue'
@@ -19,6 +19,11 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   const [name, setName] = useState('')
   const [info, setInfo] = useState('')
   const [stundensatz, setStundensatz] = useState('')
+  const [anrede, setAnrede] = useState<Anrede | ''>('')
+  const [strasse, setStrasse] = useState('')
+  const [plz, setPlz] = useState('')
+  const [ort, setOrt] = useState('')
+  const [leistungsart, setLeistungsart] = useState(STANDARD_LEISTUNG)
   const [foto, setFoto] = useState<File | null>(null)
   const [fotoEntfernen, setFotoEntfernen] = useState(false)
   const [speichert, setSpeichert] = useState(false)
@@ -47,6 +52,11 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setName('')
     setInfo('')
     setStundensatz('')
+    setAnrede('')
+    setStrasse('')
+    setPlz('')
+    setOrt('')
+    setLeistungsart(STANDARD_LEISTUNG)
     setFoto(null)
     setFotoEntfernen(false)
     setFormularOffen(false)
@@ -62,6 +72,11 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setName('')
     setInfo('')
     setStundensatz('')
+    setAnrede('')
+    setStrasse('')
+    setPlz('')
+    setOrt('')
+    setLeistungsart(STANDARD_LEISTUNG)
     setFoto(null)
     setFotoEntfernen(false)
     setFormularOffen(true)
@@ -74,6 +89,11 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setStundensatz(
       klient.hourly_rate === null ? '' : klient.hourly_rate.toFixed(2).replace('.', ',')
     )
+    setAnrede(klient.salutation ?? '')
+    setStrasse(klient.street ?? '')
+    setPlz(klient.postal_code ?? '')
+    setOrt(klient.city ?? '')
+    setLeistungsart(klient.service_type)
     setFoto(null)
     setFotoEntfernen(false)
     setFormularOffen(true)
@@ -93,6 +113,19 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   const satz = leseBetrag(stundensatz)
   const satzUngueltig = Number.isNaN(satz)
 
+  function stammdaten() {
+    return {
+      name: name.trim(),
+      info: info.trim() || null,
+      hourly_rate: satz,
+      salutation: anrede || null,
+      street: strasse.trim() || null,
+      postal_code: plz.trim() || null,
+      city: ort.trim() || null,
+      service_type: leistungsart.trim() || STANDARD_LEISTUNG,
+    }
+  }
+
   async function klientAnlegen(event: FormEvent) {
     event.preventDefault()
     if (speichert || !name.trim() || satzUngueltig) return
@@ -111,12 +144,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
       }
     }
 
-    const { error } = await supabase.from('clients').insert({
-      name: name.trim(),
-      info: info.trim() || null,
-      hourly_rate: satz,
-      photo_path: fotoPfad,
-    })
+    const { error } = await supabase.from('clients').insert({ ...stammdaten(), photo_path: fotoPfad })
 
     if (error) {
       setFehler('Der Klient konnte nicht gespeichert werden.')
@@ -152,12 +180,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
     const { error } = await supabase
       .from('clients')
-      .update({
-        name: name.trim(),
-        info: info.trim() || null,
-        hourly_rate: satz,
-        photo_path: fotoPfad,
-      })
+      .update({ ...stammdaten(), photo_path: fotoPfad })
       .eq('id', bearbeiteterKlient.id)
 
     if (error) {
@@ -231,6 +254,47 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
           </label>
 
           <label className="field">
+            Anrede
+            <select value={anrede} onChange={(e) => setAnrede(e.target.value as Anrede | '')}>
+              <option value="">keine</option>
+              <option value="Frau">Frau</option>
+              <option value="Herr">Herr</option>
+            </select>
+          </label>
+
+          <label className="field">
+            Straße und Hausnummer
+            <input
+              value={strasse}
+              onChange={(e) => setStrasse(e.target.value)}
+              autoComplete="off"
+              placeholder="z. B. Soorstr. 74"
+            />
+          </label>
+
+          <div className="feldpaar">
+            <label className="field feld-plz">
+              PLZ
+              <input
+                value={plz}
+                onChange={(e) => setPlz(e.target.value)}
+                inputMode="numeric"
+                autoComplete="off"
+                placeholder="14050"
+              />
+            </label>
+            <label className="field">
+              Ort
+              <input
+                value={ort}
+                onChange={(e) => setOrt(e.target.value)}
+                autoComplete="off"
+                placeholder="Berlin"
+              />
+            </label>
+          </div>
+
+          <label className="field">
             Wichtige Informationen
             <textarea
               value={info}
@@ -252,6 +316,11 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
             {satzUngueltig && (
               <span className="error">Bitte einen Betrag wie 35 oder 35,50 eingeben.</span>
             )}
+          </label>
+
+          <label className="field">
+            Leistungsart auf der Rechnung
+            <input value={leistungsart} onChange={(e) => setLeistungsart(e.target.value)} />
           </label>
 
           {bearbeiteterKlient?.photo_path && !fotoEntfernen && !foto && (

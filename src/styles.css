@@ -532,3 +532,75 @@ input[type="file"] {
   font-size: 14px;
   font-weight: 600;
 }
+
+select {
+  width: 100%;
+  padding: 13px 14px;
+  font: inherit;
+  font-size: 17px;
+  color: var(--ink);
+  background: #fbfaf8;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  appearance: none;
+}
+
+.feldpaar .feld-plz { flex: 0 0 34%; }
+
+/* --- Rechnungen --- */
+
+.abschnitt-titel { margin: 8px 0 0; font-size: 17px; }
+
+.abrechnungsliste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.abrechnung {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+}
+
+.abrechnung-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.abrechnung-text .hinweis { font-size: 15px; }
+.abrechnung-warnung { color: var(--danger); font-size: 14px; }
+.abrechnung .primary { flex-shrink: 0; align-self: center; }
+
+.rechnung-knopf {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0;
+  background: none;
+  border: none;
+  color: inherit;
+  text-align: left;
+}
+
+.rechnung-zeile {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.status {
+  flex-shrink: 0;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.status-offen { background: #fdeede; color: #a3500f; }
+.status-bezahlt { background: #e6f1e1; color: #2c6214; }
+
+.rechnung-werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; }
+.rechnung-werkzeuge .primary { padding: 12px 18px; }

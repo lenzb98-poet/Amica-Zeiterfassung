@@ -604,3 +604,14 @@ select {
 
 .rechnung-werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; }
 .rechnung-werkzeuge .primary { padding: 12px 18px; }
+
+.nummernkreis-kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.nummernkreis-kopf .hinweis { margin-top: 4px; }
+.nummer { color: var(--ink); font-size: 17px; }
+.nummer-eingabe { display: flex; align-items: center; gap: 8px; color: var(--ink); font-size: 17px; }
+.nummer-eingabe input { max-width: 140px; }

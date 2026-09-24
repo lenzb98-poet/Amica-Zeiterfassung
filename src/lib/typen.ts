@@ -49,6 +49,7 @@ export type Rechnungsposition = {
 export type Rechnung = {
   id: string
   number: string
+  number_seq: number
   client_id: string | null
   invoice_date: string
   period_start: string

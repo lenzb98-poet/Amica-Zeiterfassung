@@ -11,6 +11,7 @@ import {
 } from '../lib/format'
 import { useZurueckWisch } from '../lib/zurueckWisch'
 import Rechnungsdokument from './Rechnungsdokument'
+import Nummernkreis from './Nummernkreis'
 
 type OffenerPosten = {
   klient: Klient
@@ -245,6 +246,11 @@ export default function Rechnungen() {
           ))}
         </ul>
       )}
+
+      <Nummernkreis
+        letzteNummer={rechnungen.length ? Math.max(...rechnungen.map((r) => r.number_seq)) : null}
+        aktualisierung={rechnungen.length}
+      />
     </section>
   )
 }

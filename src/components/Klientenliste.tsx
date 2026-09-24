@@ -1,6 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Klient } from '../lib/typen'
+import { formatiereEuro, leseBetrag } from '../lib/format'
 import Klientenfoto from './Klientenfoto'
 import Aktionsmenue from './Aktionsmenue'
 
@@ -17,6 +18,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   const [name, setName] = useState('')
   const [info, setInfo] = useState('')
+  const [stundensatz, setStundensatz] = useState('')
   const [foto, setFoto] = useState<File | null>(null)
   const [fotoEntfernen, setFotoEntfernen] = useState(false)
   const [speichert, setSpeichert] = useState(false)
@@ -44,6 +46,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   function formularZuruecksetzen() {
     setName('')
     setInfo('')
+    setStundensatz('')
     setFoto(null)
     setFotoEntfernen(false)
     setFormularOffen(false)
@@ -58,6 +61,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setBearbeiteterKlient(null)
     setName('')
     setInfo('')
+    setStundensatz('')
     setFoto(null)
     setFotoEntfernen(false)
     setFormularOffen(true)
@@ -67,6 +71,9 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setBearbeiteterKlient(klient)
     setName(klient.name)
     setInfo(klient.info ?? '')
+    setStundensatz(
+      klient.hourly_rate === null ? '' : klient.hourly_rate.toFixed(2).replace('.', ',')
+    )
     setFoto(null)
     setFotoEntfernen(false)
     setFormularOffen(true)
@@ -83,9 +90,12 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     return pfad
   }
 
+  const satz = leseBetrag(stundensatz)
+  const satzUngueltig = Number.isNaN(satz)
+
   async function klientAnlegen(event: FormEvent) {
     event.preventDefault()
-    if (speichert || !name.trim()) return
+    if (speichert || !name.trim() || satzUngueltig) return
 
     setSpeichert(true)
     setFehler(null)
@@ -104,6 +114,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     const { error } = await supabase.from('clients').insert({
       name: name.trim(),
       info: info.trim() || null,
+      hourly_rate: satz,
       photo_path: fotoPfad,
     })
 
@@ -120,7 +131,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   async function klientAktualisieren(event: FormEvent) {
     event.preventDefault()
-    if (speichert || !name.trim() || !bearbeiteterKlient) return
+    if (speichert || !name.trim() || satzUngueltig || !bearbeiteterKlient) return
 
     setSpeichert(true)
     setFehler(null)
@@ -141,7 +152,12 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
     const { error } = await supabase
       .from('clients')
-      .update({ name: name.trim(), info: info.trim() || null, photo_path: fotoPfad })
+      .update({
+        name: name.trim(),
+        info: info.trim() || null,
+        hourly_rate: satz,
+        photo_path: fotoPfad,
+      })
       .eq('id', bearbeiteterKlient.id)
 
     if (error) {
@@ -224,6 +240,20 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
             />
           </label>
 
+          <label className="field">
+            Stundensatz in €
+            <input
+              value={stundensatz}
+              onChange={(e) => setStundensatz(e.target.value)}
+              inputMode="decimal"
+              placeholder="z. B. 35,00"
+              aria-invalid={satzUngueltig}
+            />
+            {satzUngueltig && (
+              <span className="error">Bitte einen Betrag wie 35 oder 35,50 eingeben.</span>
+            )}
+          </label>
+
           {bearbeiteterKlient?.photo_path && !fotoEntfernen && !foto && (
             <div className="feld-mit-aktion">
               <span className="hinweis">Aktuelles Foto bleibt, wenn kein neues gewählt wird.</span>
@@ -253,7 +283,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
             <button type="button" className="ghost" onClick={formularZuruecksetzen}>
               Abbrechen
             </button>
-            <button type="submit" className="primary" disabled={speichert || !name.trim()}>
+            <button type="submit" className="primary" disabled={speichert || !name.trim() || satzUngueltig}>
               {speichert ? 'Speichern …' : bearbeiteterKlient ? 'Änderungen speichern' : 'Klient anlegen'}
             </button>
           </div>
@@ -278,6 +308,9 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
                 <Klientenfoto pfad={klient.photo_path} name={klient.name} />
                 <span className="klient-text">
                   <span className="klient-name">{klient.name}</span>
+                  {klient.hourly_rate !== null && (
+                    <span className="klient-satz">{formatiereEuro(klient.hourly_rate)} / Std.</span>
+                  )}
                   {klient.info && <span className="klient-info">{klient.info}</span>}
                 </span>
               </button>

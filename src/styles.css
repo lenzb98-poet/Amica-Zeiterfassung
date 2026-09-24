@@ -525,3 +525,10 @@ input[type="file"] {
   background: var(--accent);
   color: #fff;
 }
+
+.klient-satz {
+  margin: 0;
+  color: var(--accent);
+  font-size: 14px;
+  font-weight: 600;
+}

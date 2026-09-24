@@ -3,6 +3,7 @@ export type Klient = {
   name: string
   info: string | null
   photo_path: string | null
+  hourly_rate: number | null
   created_at: string
 }
 

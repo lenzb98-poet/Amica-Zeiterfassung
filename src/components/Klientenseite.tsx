@@ -5,6 +5,7 @@ import {
   berechneMinuten,
   formatiereDatum,
   formatiereDauer,
+  formatiereEuro,
   formatiereUhrzeit,
   gruppiereNachMonat,
   heuteIso,
@@ -113,6 +114,9 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
         <Klientenfoto pfad={klient.photo_path} name={klient.name} />
         <div>
           <h2>{klient.name}</h2>
+          {klient.hourly_rate !== null && (
+            <p className="klient-satz">{formatiereEuro(klient.hourly_rate)} / Std.</p>
+          )}
           {klient.info && <p className="klient-info">{klient.info}</p>}
         </div>
       </header>

@@ -64,3 +64,16 @@ export function heuteIso(): string {
   const tag = String(jetzt.getDate()).padStart(2, '0')
   return `${jetzt.getFullYear()}-${monat}-${tag}`
 }
+
+const euroFormat = new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' })
+
+export function formatiereEuro(betrag: number): string {
+  return euroFormat.format(betrag)
+}
+
+/** Liest "35", "35,5" oder "35.50" als Zahl; leer ergibt null, Ungültiges NaN. */
+export function leseBetrag(eingabe: string): number | null {
+  const bereinigt = eingabe.trim().replace(',', '.')
+  if (!bereinigt) return null
+  return /^\d+(\.\d{1,2})?$/.test(bereinigt) ? Number(bereinigt) : NaN
+}

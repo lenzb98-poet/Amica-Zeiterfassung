@@ -10,7 +10,7 @@ import {
   vormonat,
 } from '../lib/format'
 import { useZurueckWisch } from '../lib/zurueckWisch'
-import Rechnungsdokument from './Rechnungsdokument'
+import RechnungAnsicht from './RechnungAnsicht'
 import Nummernkreis from './Nummernkreis'
 
 type OffenerPosten = {
@@ -125,40 +125,16 @@ export default function Rechnungen() {
     setOffeneRechnung((r) => (r && r.id === rechnung.id ? { ...r, ...aenderung } : r))
   }
 
-  function drucken(rechnung: Rechnung) {
-    // Der Seitentitel wird beim "Als PDF sichern" zum Dateinamen.
-    const alterTitel = document.title
-    document.title = `${rechnung.number} ${rechnung.recipient.name}`
-    window.print()
-    document.title = alterTitel
-  }
-
   if (offeneRechnung) {
     return (
-      <section className="seite">
-        <button type="button" className="zurueck" onClick={schliessen}>
-          ← Alle Rechnungen
-        </button>
-
-        <div className="rechnung-werkzeuge">
-          <button type="button" className="primary" onClick={() => drucken(offeneRechnung)}>
-            Drucken / als PDF sichern
-          </button>
-          <button type="button" className="ghost" onClick={() => statusUmschalten(offeneRechnung)}>
-            {offeneRechnung.status === 'offen' ? 'Als bezahlt markieren' : 'Wieder auf offen setzen'}
-          </button>
-        </div>
-
-        {fehler && (
-          <p className="error" role="alert">
-            {fehler}
-          </p>
-        )}
-
-        <Rechnungsdokument rechnung={offeneRechnung} />
-      </section>
+      <RechnungAnsicht
+        rechnung={offeneRechnung}
+        onZurueck={schliessen}
+        onStatusUmschalten={() => statusUmschalten(offeneRechnung)}
+      />
     )
   }
+
 
   return (
     <section className="seite">

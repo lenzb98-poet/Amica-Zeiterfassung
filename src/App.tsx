@@ -7,6 +7,7 @@ import Klientenliste from './components/Klientenliste'
 import Klientenseite from './components/Klientenseite'
 import Modulleiste, { type Modul } from './components/Modulleiste'
 import Rechnungen from './components/Rechnungen'
+import Branding from './components/Branding'
 
 const VERLAUFS_ZUSTAND = 'klient-details'
 
@@ -77,8 +78,9 @@ export default function App() {
   return (
     <main className="app">
       <header className="app-header">
-        <h1>Amica Zeiterfassung</h1>
-        <button className="ghost" onClick={() => supabase.auth.signOut()}>
+        <h1 className="visuell-versteckt">Amica Zeiterfassung</h1>
+        <Branding />
+        <button className="ghost abmelden" onClick={() => supabase.auth.signOut()}>
           Abmelden
         </button>
       </header>

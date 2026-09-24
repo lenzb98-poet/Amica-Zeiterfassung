@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { supabase, APP_USER_EMAIL } from '../lib/supabase'
+import Branding from './Branding'
 
 export default function Login() {
   const [password, setPassword] = useState('')
@@ -37,8 +38,8 @@ export default function Login() {
     <main className="login">
       <form className="card" onSubmit={handleSubmit}>
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">A</span>
-          <h1>Amica Zeiterfassung</h1>
+          <Branding groesse="gross" />
+          <h1>Zeiterfassung</h1>
           <p className="subtitle">Alltagshilfe Becker</p>
         </div>
 

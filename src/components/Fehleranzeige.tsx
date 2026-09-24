@@ -1,3 +1,4 @@
+import Branding from './Branding'
 import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 type Props = { children: ReactNode }
@@ -25,7 +26,7 @@ export default class Fehleranzeige extends Component<Props, State> {
       <main className="login">
         <div className="card">
           <div className="brand">
-            <span className="brand-mark" aria-hidden="true">A</span>
+            <Branding groesse="gross" />
             <h1>Da ist etwas schiefgelaufen</h1>
           </div>
           <p className="error">{this.state.fehler.message}</p>

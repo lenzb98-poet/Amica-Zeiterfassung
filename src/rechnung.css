@@ -29,23 +29,23 @@
 }
 
 .rb-kopf { display: flex; justify-content: space-between; align-items: flex-start; }
-.rb-logo { width: 62mm; margin: -2mm -3mm 0 0; }
+.rb-logo { flex-shrink: 0; width: 54mm; margin-top: -2mm; }
 .rb-absenderzeile {
   width: 85mm;
-  margin-top: 12mm;
+  margin-top: 10mm;
   padding-bottom: 1mm;
   border-bottom: 0.3mm solid var(--rb-linie);
   color: var(--rb-grau);
   font-size: 7.5pt;
 }
-.rb-empfaenger { margin-top: 3mm; min-height: 22mm; font-size: 11pt; font-style: normal; }
+.rb-empfaenger { margin-top: 3mm; font-size: 11pt; font-style: normal; }
 
 .rb-meta {
   display: grid;
   grid-template-columns: 1fr 1.3fr 1fr;
   gap: 6mm;
-  margin-top: 7mm;
-  padding: 3.5mm 5mm;
+  margin-top: 6mm;
+  padding: 3mm 5mm;
   background: var(--rb-gruen-hell);
   border-radius: 2mm;
 }
@@ -60,12 +60,12 @@
 }
 .rb-meta span { font-size: 11.5pt; font-weight: 500; }
 
-.rb-anschreiben { margin-top: 6mm; }
-.rb-anschreiben p { margin: 0 0 2mm; }
+.rb-anschreiben { margin-top: 5mm; }
+.rb-anschreiben p { margin: 0 0 1mm; }
 
-.rb-tabelle { width: 100%; margin-top: 6mm; border-collapse: collapse; font-size: 10.5pt; }
+.rb-tabelle { width: 100%; margin-top: 4mm; border-collapse: collapse; font-size: 10.5pt; }
 .rb-tabelle th {
-  padding: 2.5mm 2mm;
+  padding: 2mm 2mm;
   border-bottom: 0.5mm solid var(--rb-gruen);
   color: var(--rb-gruen);
   font-size: 8.5pt;
@@ -78,19 +78,19 @@
 .rb-tabelle tr { break-inside: avoid; }
 .rb-bank, .rb-gruss, .rb-fuss { break-inside: avoid; }
 .rb-tabelle .rb-zahl { text-align: right; font-variant-numeric: tabular-nums; }
-.rb-summe td { padding-top: 4mm; border-bottom: none; font-size: 12pt; font-weight: 600; }
+.rb-summe td { padding-top: 3mm; border-bottom: none; font-size: 12pt; font-weight: 600; }
 .rb-summe td:first-child { color: var(--rb-gruen); }
 .rb-summe .rb-zahl { border-top: 0.6mm solid var(--rb-orange); }
 .rb-ust { margin: 2mm 0 0; color: var(--rb-grau); font-size: 8.5pt; }
 
-.rb-zahlung { margin: 5mm 0 0; }
+.rb-zahlung { margin: 4mm 0 0; }
 .rb-bank {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: 7mm;
   row-gap: 0.8mm;
-  margin: 4mm 0 0;
-  padding: 3.5mm 6mm;
+  margin: 3mm 0 0;
+  padding: 3mm 6mm;
   background: var(--rb-gruen-hell);
   border-left: 1.6mm solid var(--rb-orange);
   border-radius: 0 2mm 2mm 0;
@@ -100,14 +100,14 @@
 .rb-bank dd { margin: 0; font-weight: 500; }
 .rb-bank .rb-iban { font-size: 13.5pt; font-weight: 600; letter-spacing: 0.04em; }
 
-.rb-gruss { margin: 5mm 0 5mm; }
-.rb-unterschrift { height: 13mm; margin: 1mm 0 0 -2mm; opacity: 0.9; }
+.rb-gruss { margin: 4mm 0 4mm; }
+.rb-unterschrift { height: 11mm; margin: 0 0 0 -2mm; opacity: 0.9; }
 
 .rb-fuss {
   display: grid;
   grid-template-columns: 1.2fr 1fr 1fr;
   gap: 5mm;
-  margin-top: auto;
+  margin-top: 5mm;
   padding-top: 3mm;
   border-top: 0.4mm solid var(--rb-gruen);
   color: var(--rb-grau);
@@ -116,9 +116,10 @@
 }
 .rb-fuss b { color: var(--rb-tinte); font-weight: 500; }
 
-/* Seitenränder im Druck über @page, damit auch Folgeseiten oben und
-   unten Abstand haben, wenn eine Rechnung länger als eine Seite ist. */
-@page { size: A4; margin: 15mm 0 12mm; }
+/* Im Druck bestimmen die Seitenränder den Satzspiegel. Das Blatt passt sich
+   der druckbaren Breite an und hat keine feste Höhe, damit eigene Ränder des
+   Browsers (Safari auf dem iPad) nicht zu einer zweiten Seite führen. */
+@page { size: A4; margin: 12mm 18mm 10mm 22mm; }
 
 @media print {
   html, body { background: #fff !important; }
@@ -131,10 +132,10 @@
     box-shadow: none !important;
   }
   .rechnung-blatt {
+    width: auto !important;
+    min-height: 0 !important;
+    padding: 0 !important;
     transform: none !important;
-    min-height: 270mm;
-    padding-top: 1mm;
-    padding-bottom: 0;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
   }

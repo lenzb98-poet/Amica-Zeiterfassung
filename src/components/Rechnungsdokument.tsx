@@ -141,10 +141,10 @@ export default function Rechnungsdokument({ rechnung }: { rechnung: Rechnung }) 
           <dd>{FIRMA.bank.inhaber}</dd>
           <dt>IBAN</dt>
           <dd className="rb-iban">{FIRMA.bank.iban}</dd>
-          <dt>BIC</dt>
-          <dd>{FIRMA.bank.bic}</dd>
           <dt>Bank</dt>
-          <dd>{FIRMA.bank.institut}</dd>
+          <dd>
+            {FIRMA.bank.institut} · BIC {FIRMA.bank.bic}
+          </dd>
           <dt>Verwendungszweck</dt>
           <dd>{rechnung.number}</dd>
         </dl>

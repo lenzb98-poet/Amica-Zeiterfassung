@@ -19,7 +19,7 @@ const FARBE = {
   linie: '#dde3da',
 }
 
-const RAND = { links: mm(25), rechts: mm(20), oben: mm(14), unten: mm(30) }
+const RAND = { links: mm(25), rechts: mm(20), oben: mm(10), unten: mm(29) }
 const BREITE = mm(210) - RAND.links - RAND.rechts
 
 async function alsBase64(url: string): Promise<string> {
@@ -115,7 +115,7 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
     defaultStyle: { font: 'Jost', fontSize: 10.5, lineHeight: 1.2, color: FARBE.tinte },
 
     footer: (seite, seiten) => ({
-      margin: [RAND.links, mm(6), RAND.rechts, 0],
+      margin: [RAND.links, mm(1.5), RAND.rechts, 0],
       stack: [
         {
           canvas: [
@@ -123,7 +123,7 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
           ],
         },
         {
-          margin: [0, mm(2.5), 0, 0],
+          margin: [0, mm(1.5), 0, 0],
           columns: [
             {
               width: '38%',
@@ -147,12 +147,12 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
               stack: [
                 { text: 'Web', font: 'JostMedium', color: FARBE.tinte },
                 FIRMA.web,
-                { text: `Seite ${seite} von ${seiten}`, margin: [0, mm(3), 0, 0], alignment: 'right' },
+                { text: `Seite ${seite} von ${seiten}`, margin: [0, mm(2), 0, 0], alignment: 'right' },
               ],
             },
           ],
           fontSize: 8,
-          lineHeight: 1.3,
+          lineHeight: 1.15,
           color: FARBE.grau,
         },
       ],
@@ -163,7 +163,7 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
         columns: [
           {
             width: '*',
-            margin: [0, mm(12), 0, 0],
+            margin: [0, mm(11), 0, 0],
             stack: [
               {
                 text: `${FIRMA.name} · ${FIRMA.strasse} · ${FIRMA.ort}`,
@@ -177,14 +177,14 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
               },
             ],
           },
-          { width: mm(54), image: logo, fit: [mm(54), mm(30)] },
+          { width: mm(50), image: logo, fit: [mm(50), mm(28)] },
         ],
       },
 
-      { margin: [0, mm(3), 0, 0], fontSize: 11, lineHeight: 1.3, stack: empfaenger },
+      { margin: [0, mm(1), 0, 0], fontSize: 11, lineHeight: 1.15, stack: empfaenger },
 
       {
-        margin: [0, mm(7), 0, 0],
+        margin: [0, mm(5), 0, 0],
         table: {
           widths: ['*', '*', '*'],
           body: [
@@ -213,21 +213,21 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
           vLineWidth: () => 0,
           paddingLeft: (i) => (i === 0 ? mm(5) : mm(2)),
           paddingRight: (i) => (i === 2 ? mm(5) : mm(2)),
-          paddingTop: () => mm(3),
-          paddingBottom: () => mm(3),
+          paddingTop: () => mm(2.3),
+          paddingBottom: () => mm(2.3),
         },
       },
 
       {
-        margin: [0, mm(6), 0, 0],
+        margin: [0, mm(4), 0, 0],
         stack: [
           anredeZeile(r),
-          { text: 'hiermit stelle ich Ihnen die folgenden Leistungen in Rechnung:', margin: [0, mm(1), 0, 0] },
+          { text: 'hiermit stelle ich Ihnen die folgenden Leistungen in Rechnung:', margin: [0, mm(0.5), 0, 0] },
         ],
       },
 
       {
-        margin: [0, mm(4), 0, 0],
+        margin: [0, mm(3), 0, 0],
         table: {
           headerRows: 1,
           dontBreakRows: true,
@@ -249,8 +249,8 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
           vLineWidth: () => 0,
           paddingLeft: () => mm(2),
           paddingRight: () => mm(2),
-          paddingTop: () => mm(2.2),
-          paddingBottom: () => mm(2.2),
+          paddingTop: () => mm(1.5),
+          paddingBottom: () => mm(1.5),
         },
       },
 
@@ -292,11 +292,11 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
 
       {
         unbreakable: true,
-        margin: [0, mm(5), 0, 0],
+        margin: [0, mm(4), 0, 0],
         stack: [
           `Bitte überweisen Sie den Rechnungsbetrag innerhalb der nächsten ${FIRMA.zahlungszielTage} Tage auf folgendes Konto:`,
           {
-            margin: [0, mm(3), 0, 0],
+            margin: [0, mm(2.5), 0, 0],
             table: {
               widths: [mm(1.6), '*'],
               body: [
@@ -304,7 +304,7 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
                   { text: '', fillColor: FARBE.orange },
                   {
                     fillColor: FARBE.gruenHell,
-                    margin: [mm(4.5), mm(2.5), mm(4), mm(2.5)],
+                    margin: [mm(4.5), mm(2), mm(4), mm(2)],
                     table: {
                       widths: [mm(37), '*'],
                       body: [
@@ -331,8 +331,8 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
                       defaultBorder: false,
                       paddingLeft: () => 0,
                       paddingRight: () => 0,
-                      paddingTop: () => mm(0.6),
-                      paddingBottom: () => mm(0.6),
+                      paddingTop: () => mm(0.3),
+                      paddingBottom: () => mm(0.3),
                     },
                   },
                 ],
@@ -346,8 +346,8 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
               paddingBottom: () => 0,
             },
           },
-          { text: 'Vielen Dank und liebe Grüße', margin: [0, mm(5), 0, mm(1)] },
-          { image: unterschrift, fit: [mm(40), mm(11)] },
+          { text: 'Vielen Dank und liebe Grüße', margin: [0, mm(4), 0, mm(0.5)] },
+          { image: unterschrift, fit: [mm(36), mm(10)] },
           FIRMA.inhaberin,
         ],
       },

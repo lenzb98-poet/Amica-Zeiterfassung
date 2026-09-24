@@ -5,12 +5,15 @@ import type { Klient } from './lib/typen'
 import Login from './components/Login'
 import Klientenliste from './components/Klientenliste'
 import Klientenseite from './components/Klientenseite'
+import Modulleiste, { type Modul } from './components/Modulleiste'
+import Rechnungen from './components/Rechnungen'
 
 const VERLAUFS_ZUSTAND = 'klient-details'
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [ready, setReady] = useState(false)
+  const [modul, setModul] = useState<Modul>('zeiterfassung')
   const [offenerKlient, setOffenerKlient] = useState<Klient | null>(null)
   const offenerKlientRef = useRef(offenerKlient)
   offenerKlientRef.current = offenerKlient
@@ -54,6 +57,11 @@ export default function App() {
     }
   }, [])
 
+  const modulWechseln = useCallback((neuesModul: Modul) => {
+    setModul(neuesModul)
+    setOffenerKlient(null)
+  }, [])
+
   if (!ready) {
     return (
       <main className="login">
@@ -75,7 +83,11 @@ export default function App() {
         </button>
       </header>
 
-      {offenerKlient ? (
+      <Modulleiste aktiv={modul} onWechseln={modulWechseln} />
+
+      {modul === 'rechnungen' ? (
+        <Rechnungen />
+      ) : offenerKlient ? (
         <Klientenseite klient={offenerKlient} onZurueck={zurZurListe} />
       ) : (
         <Klientenliste onKlientOeffnen={klientOeffnen} />

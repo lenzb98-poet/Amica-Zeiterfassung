@@ -496,3 +496,32 @@ input[type="file"] {
 .formular-knoepfe { justify-content: flex-start; }
 
 .formular-knoepfe .primary { flex: 1; }
+
+/* --- Modulleiste --- */
+
+.modulleiste {
+  display: flex;
+  gap: 4px;
+  margin-top: 20px;
+  padding: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  overflow-x: auto;
+}
+
+.modulleiste-eintrag {
+  flex: 1;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  color: var(--muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.modulleiste-eintrag.aktiv {
+  background: var(--accent);
+  color: #fff;
+}

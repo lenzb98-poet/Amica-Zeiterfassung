@@ -752,6 +752,54 @@ select {
 .status-ueberfaellig { background: rgba(168, 53, 44, 0.12); color: var(--danger); }
 .formular { scroll-margin-top: 16px; }
 
-.export-zeile { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
-.export-zeile .field { flex: 0 0 130px; }
-.export-zeile .primary { flex: 1; min-width: 200px; }
+
+.feld-hinweis { color: var(--muted); font-size: 13px; }
+
+/* --- Steuern --- */
+
+.jahr-auswahl { width: auto; padding: 9px 36px 9px 14px; font-weight: 600; }
+
+.steuer-kacheln { display: flex; flex-direction: column; gap: 14px; transition: opacity 0.2s; }
+.steuer-kacheln.laedt { opacity: 0.5; }
+
+.kachel { display: flex; flex-direction: column; gap: 6px; padding: 18px 20px; }
+.kachel .hinweis { font-size: 15px; }
+.kachel-titel { color: var(--muted); font-size: 14px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; }
+.kachel-zahl { font-size: 30px; font-weight: 600; letter-spacing: -0.01em; color: var(--ink); }
+.kachel-von { font-size: 16px; font-weight: 400; color: var(--muted); }
+.kachel-zusatz { margin: 2px 0 0; font-size: 14px; color: var(--accent-dark); }
+.kachel-zusatz.warnung { color: #a3500f; }
+
+.grenze-balken {
+  height: 10px;
+  margin: 4px 0 2px;
+  overflow: hidden;
+  background: rgba(38, 48, 43, 0.08);
+  border-radius: 999px;
+}
+.grenze-balken span { display: block; height: 100%; border-radius: inherit; transition: width 0.6s ease-out; }
+.grenze-balken.gut span { background: var(--accent); }
+.grenze-balken.knapp span { background: #e08a2e; }
+.grenze-balken.drueber span { background: var(--danger); }
+
+.export {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.export + .export { padding-top: 14px; border-top: 1px solid var(--border); }
+.export-text { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.export-text .hinweis { font-size: 14px; }
+.export .schmal { flex-shrink: 0; align-self: center; }
+
+.kleingedruckt { font-size: 13px; text-align: center; }
+
+@media (max-width: 480px) {
+  .modulleiste { gap: 2px; padding: 4px; }
+  .modulleiste-eintrag { padding: 10px 6px; font-size: 15px; }
+}
+
+@media (max-width: 360px) {
+  .modulleiste-eintrag { padding: 9px 4px; font-size: 14px; letter-spacing: -0.01em; }
+}

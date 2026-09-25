@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import { STANDARD_LEISTUNG, type Anrede, type Klient } from '../lib/typen'
-import { formatiereEuro, leseBetrag } from '../lib/format'
+import { formatiereEuro, formatiereKm, leseBetrag } from '../lib/format'
 import Klientenfoto from './Klientenfoto'
 import Aktionsmenue from './Aktionsmenue'
 
@@ -19,6 +19,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   const [name, setName] = useState('')
   const [info, setInfo] = useState('')
   const [stundensatz, setStundensatz] = useState('')
+  const [entfernung, setEntfernung] = useState('')
   const [anrede, setAnrede] = useState<Anrede | ''>('')
   const [strasse, setStrasse] = useState('')
   const [plz, setPlz] = useState('')
@@ -52,6 +53,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setName('')
     setInfo('')
     setStundensatz('')
+    setEntfernung('')
     setAnrede('')
     setStrasse('')
     setPlz('')
@@ -72,6 +74,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setName('')
     setInfo('')
     setStundensatz('')
+    setEntfernung('')
     setAnrede('')
     setStrasse('')
     setPlz('')
@@ -89,6 +92,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setStundensatz(
       klient.hourly_rate === null ? '' : klient.hourly_rate.toFixed(2).replace('.', ',')
     )
+    setEntfernung(klient.distance_km === null ? '' : String(klient.distance_km).replace('.', ','))
     setAnrede(klient.salutation ?? '')
     setStrasse(klient.street ?? '')
     setPlz(klient.postal_code ?? '')
@@ -111,13 +115,17 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   }
 
   const satz = leseBetrag(stundensatz)
+  const km = leseBetrag(entfernung)
   const satzUngueltig = Number.isNaN(satz)
+  const kmUngueltig = Number.isNaN(km)
+  const eingabeUngueltig = satzUngueltig || kmUngueltig
 
   function stammdaten() {
     return {
       name: name.trim(),
       info: info.trim() || null,
       hourly_rate: satz,
+      distance_km: km,
       salutation: anrede || null,
       street: strasse.trim() || null,
       postal_code: plz.trim() || null,
@@ -128,7 +136,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   async function klientAnlegen(event: FormEvent) {
     event.preventDefault()
-    if (speichert || !name.trim() || satzUngueltig) return
+    if (speichert || !name.trim() || eingabeUngueltig) return
 
     setSpeichert(true)
     setFehler(null)
@@ -159,7 +167,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   async function klientAktualisieren(event: FormEvent) {
     event.preventDefault()
-    if (speichert || !name.trim() || satzUngueltig || !bearbeiteterKlient) return
+    if (speichert || !name.trim() || eingabeUngueltig || !bearbeiteterKlient) return
 
     setSpeichert(true)
     setFehler(null)
@@ -319,6 +327,22 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
           </label>
 
           <label className="field">
+            Entfernung in km (einfache Strecke)
+            <input
+              value={entfernung}
+              onChange={(e) => setEntfernung(e.target.value)}
+              inputMode="decimal"
+              placeholder="z. B. 6,5"
+              aria-invalid={kmUngueltig}
+            />
+            <span className={kmUngueltig ? 'error' : 'feld-hinweis'}>
+              {kmUngueltig
+                ? 'Bitte eine Zahl wie 6 oder 6,5 eingeben.'
+                : 'Von dir zu Hause bis zum Klienten. Hin- und Rückweg rechnet die App selbst.'}
+            </span>
+          </label>
+
+          <label className="field">
             Leistungsart auf der Rechnung
             <input value={leistungsart} onChange={(e) => setLeistungsart(e.target.value)} />
           </label>
@@ -352,7 +376,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
             <button type="button" className="ghost" onClick={formularZuruecksetzen}>
               Abbrechen
             </button>
-            <button type="submit" className="primary" disabled={speichert || !name.trim() || satzUngueltig}>
+            <button type="submit" className="primary" disabled={speichert || !name.trim() || eingabeUngueltig}>
               {speichert ? 'Speichern …' : bearbeiteterKlient ? 'Änderungen speichern' : 'Klient anlegen'}
             </button>
           </div>
@@ -377,8 +401,15 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
                 <Klientenfoto pfad={klient.photo_path} name={klient.name} />
                 <span className="klient-text">
                   <span className="klient-name">{klient.name}</span>
-                  {klient.hourly_rate !== null && (
-                    <span className="klient-satz">{formatiereEuro(klient.hourly_rate)} / Std.</span>
+                  {(klient.hourly_rate !== null || klient.distance_km !== null) && (
+                    <span className="klient-satz">
+                      {[
+                        klient.hourly_rate !== null && `${formatiereEuro(klient.hourly_rate)} / Std.`,
+                        klient.distance_km !== null && `${formatiereKm(klient.distance_km)} entfernt`,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
                   )}
                   {klient.info && <span className="klient-info">{klient.info}</span>}
                 </span>

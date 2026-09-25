@@ -13,6 +13,8 @@ export type Klient = {
   postal_code: string | null
   city: string | null
   service_type: string
+  /** Einfache Strecke von zu Hause, in km. */
+  distance_km: number | null
   created_at: string
 }
 

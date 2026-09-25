@@ -1,4 +1,4 @@
-export type Modul = 'zeiterfassung' | 'rechnungen'
+export type Modul = 'zeiterfassung' | 'rechnungen' | 'steuern'
 
 type Props = {
   aktiv: Modul
@@ -8,6 +8,7 @@ type Props = {
 const MODULE: { id: Modul; titel: string }[] = [
   { id: 'zeiterfassung', titel: 'Zeiterfassung' },
   { id: 'rechnungen', titel: 'Rechnungen' },
+  { id: 'steuern', titel: 'Steuern' },
 ]
 
 export default function Modulleiste({ aktiv, onWechseln }: Props) {

@@ -15,7 +15,6 @@ import { FIRMA } from '../lib/firma'
 import RechnungAnsicht from './RechnungAnsicht'
 import Nummernkreis, { rechnungsnummer } from './Nummernkreis'
 import Aktionsmenue from './Aktionsmenue'
-import Jahresexport from './Jahresexport'
 
 type OffenerPosten = {
   klient: Klient
@@ -246,8 +245,6 @@ export default function Rechnungen() {
           ))}
         </ul>
       )}
-
-      <Jahresexport rechnungen={rechnungen} />
 
       <Nummernkreis
         letzteNummer={rechnungen.length ? Math.max(...rechnungen.map((r) => r.number_seq)) : null}

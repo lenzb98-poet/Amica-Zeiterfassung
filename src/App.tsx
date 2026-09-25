@@ -7,6 +7,7 @@ import Klientenliste from './components/Klientenliste'
 import Klientenseite from './components/Klientenseite'
 import Modulleiste, { type Modul } from './components/Modulleiste'
 import Rechnungen from './components/Rechnungen'
+import Steuern from './components/Steuern'
 import Branding from './components/Branding'
 
 const VERLAUFS_ZUSTAND = 'klient-details'
@@ -89,6 +90,8 @@ export default function App() {
 
       {modul === 'rechnungen' ? (
         <Rechnungen />
+      ) : modul === 'steuern' ? (
+        <Steuern />
       ) : offenerKlient ? (
         <Klientenseite klient={offenerKlient} onZurueck={zurZurListe} />
       ) : (

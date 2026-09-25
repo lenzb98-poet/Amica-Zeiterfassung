@@ -119,3 +119,10 @@ export function tageUeberfaellig(rechnungsdatum: string, zahlungszielTage: numbe
   const tage = Math.round((new Date(`${heute}T00:00:00`).getTime() - faellig.getTime()) / 86_400_000)
   return Math.max(0, tage)
 }
+
+const kmFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
+
+/** 12.5 → "12,5 km" */
+export function formatiereKm(km: number): string {
+  return `${kmFormat.format(km)} km`
+}

@@ -777,3 +777,8 @@ select {
   .app-header .branding { --breite: 96px; }
   .app-header .abmelden { padding: 6px 8px; font-size: 14px; }
 }
+
+/* Durchscheinende Karten bilden eigene Ebenen; die Karte mit offenem
+   Drei-Punkte-Menü muss über den folgenden Karten liegen. */
+.karte { position: relative; }
+.karte:has(.aktionsmenue-knopf[aria-expanded="true"]) { z-index: 20; }

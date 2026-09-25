@@ -9,8 +9,8 @@
   --feld: rgba(255, 255, 255, 0.85);
   --ink: #26302b;
   --muted: #6b746f;
-  --accent: #3b7a27;
-  --accent-dark: #2c6214;
+  --accent: #2f6f6b;
+  --accent-dark: #24564f;
   --orange: #f97a1f;
   --danger: #a8352c;
   --border: rgba(38, 48, 43, 0.09);
@@ -47,7 +47,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Ganz zarte Farbflächen aus den Logofarben, die langsam wandern. */
+/* Ganz zarte Farbflächen in Petrol und Sand, die langsam wandern. */
 body::before {
   content: '';
   position: fixed;
@@ -55,10 +55,10 @@ body::before {
   z-index: -1;
   pointer-events: none;
   background:
-    radial-gradient(38% 32% at 18% 22%, rgba(249, 122, 31, 0.16), transparent 70%),
-    radial-gradient(34% 30% at 84% 16%, rgba(59, 122, 39, 0.12), transparent 70%),
-    radial-gradient(40% 36% at 72% 78%, rgba(249, 170, 96, 0.14), transparent 70%),
-    radial-gradient(36% 34% at 22% 84%, rgba(59, 122, 39, 0.1), transparent 70%);
+    radial-gradient(38% 32% at 18% 22%, rgba(47, 111, 107, 0.1), transparent 70%),
+    radial-gradient(34% 30% at 84% 16%, rgba(214, 190, 160, 0.22), transparent 70%),
+    radial-gradient(40% 36% at 72% 78%, rgba(47, 111, 107, 0.08), transparent 70%),
+    radial-gradient(36% 34% at 22% 84%, rgba(214, 190, 160, 0.18), transparent 70%);
   animation: schweben 36s ease-in-out infinite alternate;
   will-change: transform;
 }
@@ -140,12 +140,12 @@ input {
 input:focus, textarea:focus, select:focus {
   outline: none;
   background: #fff;
-  border-color: rgba(59, 122, 39, 0.45);
-  box-shadow: 0 0 0 4px rgba(59, 122, 39, 0.12);
+  border-color: rgba(47, 111, 107, 0.45);
+  box-shadow: 0 0 0 4px rgba(47, 111, 107, 0.12);
 }
 
 button:focus-visible {
-  outline: 3px solid rgba(59, 122, 39, 0.35);
+  outline: 3px solid rgba(47, 111, 107, 0.35);
   outline-offset: 2px;
 }
 
@@ -162,14 +162,14 @@ button:active:not(:disabled) { transform: scale(0.97); }
 .primary {
   padding: 15px;
   border: none;
-  background: linear-gradient(135deg, #4c9133 0%, var(--accent) 45%, var(--accent-dark) 100%);
+  background: var(--accent);
   color: #fff;
   font-weight: 600;
   letter-spacing: 0.01em;
-  box-shadow: 0 1px 2px rgba(44, 98, 20, 0.2), 0 6px 16px rgba(44, 98, 20, 0.22);
+  box-shadow: 0 1px 2px rgba(36, 86, 79, 0.15), 0 4px 12px rgba(36, 86, 79, 0.14);
 }
 
-.primary:hover:not(:disabled) { box-shadow: 0 2px 4px rgba(44, 98, 20, 0.2), 0 10px 24px rgba(44, 98, 20, 0.28); }
+.primary:hover:not(:disabled) { background: var(--accent-dark); }
 
 .primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
@@ -333,8 +333,8 @@ input[type="file"] {
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  background: linear-gradient(140deg, #fbb574 0%, var(--orange) 55%, #e0661a 100%);
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(249, 122, 31, 0.25);
+  background: var(--accent);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 3px 10px rgba(36, 86, 79, 0.16);
 }
 
 .klient-foto-platzhalter {
@@ -623,10 +623,10 @@ input[type="file"] {
 .modulleiste-eintrag:hover:not(.aktiv) { color: var(--ink); background: rgba(255, 255, 255, 0.6); }
 
 .modulleiste-eintrag.aktiv {
-  background: linear-gradient(135deg, #4c9133 0%, var(--accent) 45%, var(--accent-dark) 100%);
+  background: var(--accent);
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 4px 12px rgba(44, 98, 20, 0.22);
+  box-shadow: 0 3px 10px rgba(36, 86, 79, 0.18);
 }
 
 .klient-satz {
@@ -704,7 +704,7 @@ select {
   font-weight: 600;
 }
 .status-offen { background: rgba(249, 122, 31, 0.13); color: #a3500f; }
-.status-bezahlt { background: rgba(59, 122, 39, 0.12); color: #2c6214; }
+.status-bezahlt { background: rgba(47, 111, 107, 0.12); color: var(--accent-dark); }
 
 .rechnung-werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; }
 .rechnung-werkzeuge .primary { padding: 12px 18px; }
@@ -755,7 +755,7 @@ select {
   width: calc(var(--breite) * 0.34);
   height: calc(var(--breite) * 0.05);
   border-radius: 999px;
-  background: linear-gradient(90deg, #4c9133, var(--accent-dark));
+  background: #2c6214;
 }
 
 .brand .branding { margin: 0 auto 14px; }

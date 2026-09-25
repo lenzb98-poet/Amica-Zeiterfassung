@@ -1,12 +1,23 @@
+@font-face { font-family: Jost; font-weight: 400; font-display: swap; src: url('./assets/fonts/Jost_400Regular.ttf') format('truetype'); }
+@font-face { font-family: Jost; font-weight: 500; font-display: swap; src: url('./assets/fonts/Jost_500Medium.ttf') format('truetype'); }
+@font-face { font-family: Jost; font-weight: 600; font-display: swap; src: url('./assets/fonts/Jost_600SemiBold.ttf') format('truetype'); }
+
 :root {
-  --bg: #f4f2ee;
-  --card: #ffffff;
-  --ink: #23302f;
-  --muted: #6d7b79;
-  --accent: #2f6f6b;
-  --accent-dark: #24564f;
+  --bg: #f7f4ef;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-fest: #ffffff;
+  --feld: rgba(255, 255, 255, 0.85);
+  --ink: #26302b;
+  --muted: #6b746f;
+  --accent: #3b7a27;
+  --accent-dark: #2c6214;
+  --orange: #f97a1f;
   --danger: #a8352c;
-  --border: #e2ded7;
+  --border: rgba(38, 48, 43, 0.09);
+  --schatten: 0 1px 2px rgba(38, 48, 43, 0.04), 0 8px 24px rgba(38, 48, 43, 0.06);
+  --schatten-hoch: 0 2px 4px rgba(38, 48, 43, 0.05), 0 16px 40px rgba(38, 48, 43, 0.1);
+  --glas: blur(16px) saturate(150%);
+  --weich: cubic-bezier(0.22, 1, 0.36, 1);
   color-scheme: light;
 }
 
@@ -22,14 +33,53 @@ html {
   text-size-adjust: 100%;
 }
 
+html { background: var(--bg); }
+
 body {
+  position: relative;
   margin: 0;
-  background: var(--bg);
+  min-height: 100vh;
+  background: transparent;
   color: var(--ink);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: Jost, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 17px;
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
+
+/* Ganz zarte Farbflächen aus den Logofarben, die langsam wandern. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 32% at 18% 22%, rgba(249, 122, 31, 0.16), transparent 70%),
+    radial-gradient(34% 30% at 84% 16%, rgba(59, 122, 39, 0.12), transparent 70%),
+    radial-gradient(40% 36% at 72% 78%, rgba(249, 170, 96, 0.14), transparent 70%),
+    radial-gradient(36% 34% at 22% 84%, rgba(59, 122, 39, 0.1), transparent 70%);
+  animation: schweben 36s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+@keyframes schweben {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg) scale(1); }
+  50% { transform: translate3d(3%, -2%, 0) rotate(4deg) scale(1.05); }
+  100% { transform: translate3d(-2%, 3%, 0) rotate(-3deg) scale(1.02); }
+}
+
+@keyframes auftauchen {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before { animation: none; }
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+h1, h2, h3 { font-weight: 600; letter-spacing: -0.01em; }
 
 .login {
   min-height: 100vh;
@@ -45,13 +95,16 @@ body {
   width: 100%;
   max-width: 380px;
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 32px 26px;
+  -webkit-backdrop-filter: var(--glas);
+  backdrop-filter: var(--glas);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 24px;
+  padding: 34px 28px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 0 12px 32px rgba(35, 48, 47, 0.08);
+  box-shadow: var(--schatten-hoch);
+  animation: auftauchen 0.5s var(--weich) both;
 }
 
 .brand { text-align: center; }
@@ -75,41 +128,59 @@ input {
   flex: 1;
   min-width: 0;
   padding: 14px 14px;
+  font: inherit;
   font-size: 17px;
   color: var(--ink);
-  background: #fbfaf8;
+  background: var(--feld);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
-input:focus-visible,
+input:focus, textarea:focus, select:focus {
+  outline: none;
+  background: #fff;
+  border-color: rgba(59, 122, 39, 0.45);
+  box-shadow: 0 0 0 4px rgba(59, 122, 39, 0.12);
+}
+
 button:focus-visible {
-  outline: 3px solid rgba(47, 111, 107, 0.35);
-  outline-offset: 1px;
+  outline: 3px solid rgba(59, 122, 39, 0.35);
+  outline-offset: 2px;
 }
 
 button {
   font: inherit;
-  border-radius: 12px;
+  border-radius: 14px;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.18s var(--weich), box-shadow 0.25s var(--weich), background 0.2s, opacity 0.2s;
 }
+
+button:active:not(:disabled) { transform: scale(0.97); }
 
 .primary {
   padding: 15px;
   border: none;
-  background: var(--accent);
+  background: linear-gradient(135deg, #4c9133 0%, var(--accent) 45%, var(--accent-dark) 100%);
   color: #fff;
   font-weight: 600;
+  letter-spacing: 0.01em;
+  box-shadow: 0 1px 2px rgba(44, 98, 20, 0.2), 0 6px 16px rgba(44, 98, 20, 0.22);
 }
 
-.primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.primary:hover:not(:disabled) { box-shadow: 0 2px 4px rgba(44, 98, 20, 0.2), 0 10px 24px rgba(44, 98, 20, 0.28); }
+
+.primary:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: none; }
 
 .ghost {
   padding: 10px 14px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.55);
   border: 1px solid var(--border);
   color: var(--muted);
 }
+
+.ghost:hover:not(:disabled) { background: rgba(255, 255, 255, 0.9); color: var(--ink); }
 
 .error {
   margin: 0;
@@ -143,7 +214,7 @@ code, .snippet {
 .snippet {
   margin: 0;
   padding: 12px 14px;
-  background: #fbfaf8;
+  background: var(--feld);
   border: 1px solid var(--border);
   border-radius: 12px;
   overflow-x: auto;
@@ -156,6 +227,7 @@ code, .snippet {
   flex-direction: column;
   gap: 20px;
   margin-top: 24px;
+  animation: auftauchen 0.4s var(--weich) both;
 }
 
 .seiten-kopf {
@@ -169,9 +241,12 @@ code, .snippet {
 
 .karte {
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
+  -webkit-backdrop-filter: var(--glas);
+  backdrop-filter: var(--glas);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 20px;
   padding: 16px;
+  box-shadow: var(--schatten);
 }
 
 .formular {
@@ -188,10 +263,11 @@ textarea {
   font: inherit;
   font-size: 17px;
   color: var(--ink);
-  background: #fbfaf8;
+  background: var(--feld);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 input[type="file"] {
@@ -227,7 +303,16 @@ input[type="file"] {
   align-items: center;
   gap: 12px;
   padding: 12px;
+  transition: transform 0.25s var(--weich), box-shadow 0.25s var(--weich);
 }
+
+.klient-karte:hover, .rechnung-karte:hover { box-shadow: var(--schatten-hoch); }
+
+.klientenliste > li { animation: auftauchen 0.45s var(--weich) both; }
+.klientenliste > li:nth-child(2) { animation-delay: 40ms; }
+.klientenliste > li:nth-child(3) { animation-delay: 80ms; }
+.klientenliste > li:nth-child(4) { animation-delay: 120ms; }
+.klientenliste > li:nth-child(n + 5) { animation-delay: 160ms; }
 
 .klient-knopf {
   flex: 1;
@@ -248,7 +333,8 @@ input[type="file"] {
   height: 56px;
   border-radius: 50%;
   object-fit: cover;
-  background: var(--accent);
+  background: linear-gradient(140deg, #fbb574 0%, var(--orange) 55%, #e0661a 100%);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(249, 122, 31, 0.25);
 }
 
 .klient-foto-platzhalter {
@@ -315,7 +401,7 @@ input[type="file"] {
   display: grid;
   place-items: center;
   padding: 8px;
-  background: #fbfaf8;
+  background: var(--feld);
   border: 1px dashed var(--border);
   border-radius: 12px;
 }
@@ -370,7 +456,7 @@ input[type="file"] {
 .eintrag-unterschrift {
   max-height: 90px;
   align-self: flex-start;
-  background: #fbfaf8;
+  background: #fff;
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 4px;
@@ -386,7 +472,10 @@ input[type="file"] {
   align-items: center;
   justify-content: center;
   padding: 16px;
-  background: rgba(35, 48, 47, 0.55);
+  background: rgba(38, 48, 43, 0.35);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  animation: auftauchen 0.25s var(--weich) both;
 }
 
 .overlay-inhalt {
@@ -395,9 +484,10 @@ input[type="file"] {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 20px;
-  background: var(--card);
-  border-radius: 18px;
+  padding: 22px;
+  background: var(--card-fest);
+  border-radius: 24px;
+  box-shadow: var(--schatten-hoch);
 }
 
 .overlay-inhalt h2 { margin: 0; font-size: 18px; text-align: center; }
@@ -405,7 +495,7 @@ input[type="file"] {
 .signatur-flaeche {
   width: 100%;
   height: 240px;
-  background: #fbfaf8;
+  background: #fff;
   border: 1px solid var(--border);
   border-radius: 12px;
   /* Damit Wischen zeichnet statt die Seite zu scrollen. */
@@ -438,12 +528,12 @@ input[type="file"] {
   color: var(--muted);
   font-size: 22px;
   line-height: 1;
-  border-radius: 10px;
+  border-radius: 12px;
 }
 
 .aktionsmenue-knopf:hover,
 .aktionsmenue-knopf[aria-expanded="true"] {
-  background: var(--bg);
+  background: rgba(38, 48, 43, 0.06);
 }
 
 .aktionsmenue-liste {
@@ -451,12 +541,21 @@ input[type="file"] {
   right: 0;
   top: calc(100% + 4px);
   z-index: 5;
-  min-width: 140px;
+  min-width: 150px;
   padding: 6px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  box-shadow: 0 8px 24px rgba(35, 48, 47, 0.15);
+  background: rgba(255, 255, 255, 0.9);
+  -webkit-backdrop-filter: var(--glas);
+  backdrop-filter: var(--glas);
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 16px;
+  box-shadow: var(--schatten-hoch);
+  transform-origin: top right;
+  animation: aufklappen 0.18s var(--weich) both;
+}
+
+@keyframes aufklappen {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: none; }
 }
 
 .aktionsmenue-eintrag {
@@ -469,7 +568,7 @@ input[type="file"] {
   font-size: 15px;
 }
 
-.aktionsmenue-eintrag:hover { background: var(--bg); }
+.aktionsmenue-eintrag:hover { background: rgba(38, 48, 43, 0.05); }
 
 .aktionsmenue-eintrag.loeschen { color: var(--danger); }
 
@@ -499,10 +598,13 @@ input[type="file"] {
   display: flex;
   gap: 4px;
   margin-top: 20px;
-  padding: 4px;
+  padding: 5px;
   background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 14px;
+  -webkit-backdrop-filter: var(--glas);
+  backdrop-filter: var(--glas);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 18px;
+  box-shadow: var(--schatten);
   overflow-x: auto;
 }
 
@@ -511,15 +613,20 @@ input[type="file"] {
   padding: 10px 14px;
   background: transparent;
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   color: var(--muted);
-  font-weight: 600;
+  font-weight: 500;
   white-space: nowrap;
+  transition: background 0.3s var(--weich), color 0.3s, box-shadow 0.3s var(--weich), transform 0.18s var(--weich);
 }
 
+.modulleiste-eintrag:hover:not(.aktiv) { color: var(--ink); background: rgba(255, 255, 255, 0.6); }
+
 .modulleiste-eintrag.aktiv {
-  background: var(--accent);
+  background: linear-gradient(135deg, #4c9133 0%, var(--accent) 45%, var(--accent-dark) 100%);
   color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(44, 98, 20, 0.22);
 }
 
 .klient-satz {
@@ -535,10 +642,11 @@ select {
   font: inherit;
   font-size: 17px;
   color: var(--ink);
-  background: #fbfaf8;
+  background: var(--feld);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 14px;
   appearance: none;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
 }
 
 .feldpaar .feld-plz { flex: 0 0 34%; }
@@ -595,8 +703,8 @@ select {
   font-size: 13px;
   font-weight: 600;
 }
-.status-offen { background: #fdeede; color: #a3500f; }
-.status-bezahlt { background: #e6f1e1; color: #2c6214; }
+.status-offen { background: rgba(249, 122, 31, 0.13); color: #a3500f; }
+.status-bezahlt { background: rgba(59, 122, 39, 0.12); color: #2c6214; }
 
 .rechnung-werkzeuge { display: flex; flex-wrap: wrap; gap: 10px; }
 .rechnung-werkzeuge .primary { padding: 12px 18px; }
@@ -617,8 +725,9 @@ select {
   width: 100%;
   height: auto;
   background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 6px 24px rgba(35, 48, 47, 0.12);
+  border-radius: 8px;
+  box-shadow: var(--schatten-hoch);
+  animation: auftauchen 0.4s var(--weich) both;
 }
 
 .rechnung-karte { display: flex; align-items: center; gap: 8px; }
@@ -646,7 +755,7 @@ select {
   width: calc(var(--breite) * 0.34);
   height: calc(var(--breite) * 0.05);
   border-radius: 999px;
-  background: #2c6214;
+  background: linear-gradient(90deg, #4c9133, var(--accent-dark));
 }
 
 .brand .branding { margin: 0 auto 14px; }

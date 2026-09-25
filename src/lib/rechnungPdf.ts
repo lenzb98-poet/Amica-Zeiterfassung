@@ -186,7 +186,7 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
       {
         margin: [0, mm(5), 0, 0],
         table: {
-          widths: ['*', '*', '*'],
+          widths: ['*', 'auto', '*'],
           body: [
             [
               { stack: [kleineUeberschrift('Rechnung'), rechnung.number] },

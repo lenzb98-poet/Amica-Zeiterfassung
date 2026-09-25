@@ -45,7 +45,17 @@ export function berechneFahrten(eintraege: Zeiteintrag[], klienten: Klient[]) {
   }
 
   fahrten.sort((a, b) => a.datum.localeCompare(b.datum))
+
+  const proKlient = new Map<string, { klient: string; anzahl: number; km: number }>()
+  for (const f of fahrten) {
+    const eintrag = proKlient.get(f.klient) ?? { klient: f.klient, anzahl: 0, km: 0 }
+    eintrag.anzahl += 1
+    eintrag.km = runde(eintrag.km + f.km)
+    proKlient.set(f.klient, eintrag)
+  }
+
   return {
+    proKlient: [...proKlient.values()].sort((a, b) => b.km - a.km),
     fahrten,
     km: runde(fahrten.reduce((summe, f) => summe + f.km, 0)),
     betrag: runde(fahrten.reduce((summe, f) => summe + f.betrag, 0)),

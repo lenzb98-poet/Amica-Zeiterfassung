@@ -105,9 +105,21 @@ export default function Steuern() {
           <span className="kachel-titel">Fahrten zu Klienten</span>
           <span className="kachel-zahl">{formatiereEuro(fahrten.betrag)}</span>
           <p className="hinweis">
-            {fahrten.fahrten.length} Fahrten, {formatiereKm(fahrten.km)} hin und zurück. Absetzbar
-            mit {KM_PAUSCHALE.toFixed(2).replace('.', ',')} € je gefahrenem Kilometer.
+            {fahrten.fahrten.length} Fahrten, {formatiereKm(fahrten.km)} hin und zurück. Gezählt wird jeder
+            erfasste Einsatz. Absetzbar mit {KM_PAUSCHALE.toFixed(2).replace('.', ',')} € je gefahrenem Kilometer.
           </p>
+          {fahrten.proKlient.length > 0 && (
+            <ul className="fahrten-liste">
+              {fahrten.proKlient.map((k) => (
+                <li key={k.klient}>
+                  <span>{k.klient}</span>
+                  <span className="hinweis">
+                    {k.anzahl} × hin und zurück · {formatiereKm(k.km)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
           {fahrten.ohneEntfernung.length > 0 && (
             <p className="kachel-zusatz warnung">
               Entfernung fehlt bei: {fahrten.ohneEntfernung.join(', ')}. Diese Fahrten zählen noch

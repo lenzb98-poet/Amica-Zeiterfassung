@@ -822,3 +822,14 @@ select {
 
 .schalter { display: flex; align-items: center; gap: 12px; font-size: 17px; cursor: pointer; }
 .schalter input { flex: 0 0 auto; width: 22px; height: 22px; accent-color: var(--accent); }
+
+.fahrten-liste { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; }
+.fahrten-liste li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--border);
+  font-size: 15px;
+}
+.fahrten-liste .hinweis { font-size: 14px; text-align: right; }

@@ -17,6 +17,18 @@ import Nummernkreis, { rechnungsnummer } from './Nummernkreis'
 import Aktionsmenue from './Aktionsmenue'
 import RechnungNachtragen from './RechnungNachtragen'
 
+// Eigene Auswahllisten statt <input type="month">, das Safari auf dem Mac nicht kennt.
+const MONATE = Array.from({ length: 12 }, (_, i) =>
+  new Intl.DateTimeFormat('de-DE', { month: 'long' }).format(new Date(2000, i, 1)),
+)
+
+function jahreAuswahl(monat: string): string[] {
+  const aktuell = new Date().getFullYear()
+  const jahre = new Set([Number(monat.slice(0, 4))])
+  for (let j = aktuell - 3; j <= aktuell + 1; j++) jahre.add(j)
+  return [...jahre].sort((a, b) => b - a).map(String)
+}
+
 type OffenerPosten = {
   klient: Klient
   minuten: number
@@ -195,10 +207,28 @@ export default function Rechnungen() {
       )}
 
       <div className="karte formular">
-        <label className="field">
-          Abrechnungsmonat
-          <input type="month" value={monat} onChange={(e) => e.target.value && setMonat(e.target.value)} />
-        </label>
+        <div className="feldpaar">
+          <label className="field">
+            Abrechnungsmonat
+            <select value={monat.slice(5)} onChange={(e) => setMonat(`${monat.slice(0, 4)}-${e.target.value}`)}>
+              {MONATE.map((name, i) => (
+                <option key={name} value={String(i + 1).padStart(2, '0')}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            Jahr
+            <select value={monat.slice(0, 4)} onChange={(e) => setMonat(`${e.target.value}-${monat.slice(5)}`)}>
+              {jahreAuswahl(monat).map((j) => (
+                <option key={j} value={j}>
+                  {j}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
 
         <h3>Offen für {monatsTitel(monat)}</h3>
 

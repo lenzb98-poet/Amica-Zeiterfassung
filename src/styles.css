@@ -833,3 +833,18 @@ select {
   font-size: 15px;
 }
 .fahrten-liste .hinweis { font-size: 14px; text-align: right; }
+
+.steuer-rechnung {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 16px;
+  margin: 4px 0;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-size: 15px;
+}
+.steuer-rechnung dt { color: var(--muted); }
+.steuer-rechnung dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+.steuer-rechnung .summe { color: var(--ink); font-weight: 600; padding-bottom: 6px; }
+.steuerangaben { padding-top: 6px; }

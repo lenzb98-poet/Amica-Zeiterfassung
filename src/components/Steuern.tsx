@@ -5,12 +5,17 @@ import { formatiereEuro, formatiereKm } from '../lib/format'
 import {
   KLEINUNTERNEHMER_GRENZE,
   KM_PAUSCHALE,
+  LEERES_PROFIL,
   berechneFahrten,
   einnahmenImJahr,
+  schaetzeSteuern,
+  tarifJahr,
   umsatzImJahr,
+  type Steuerprofil,
 } from '../lib/steuer'
 import { erzeugeFahrtenliste, erzeugeJahresliste } from '../lib/excelExport'
 import ExportKnopf from './ExportKnopf'
+import Steuerangaben from './Steuerangaben'
 
 const DIESES_JAHR = new Date().getFullYear()
 
@@ -21,6 +26,26 @@ export default function Steuern() {
   const [eintraege, setEintraege] = useState<Zeiteintrag[]>([])
   const [laedt, setLaedt] = useState(true)
   const [fehler, setFehler] = useState<string | null>(null)
+  const [profil, setProfil] = useState<Steuerprofil>(LEERES_PROFIL)
+  const [angabenOffen, setAngabenOffen] = useState(false)
+
+  useEffect(() => {
+    supabase
+      .from('tax_profile')
+      .select('*')
+      .single()
+      .then(({ data }) => {
+        if (!data) return
+        setProfil({
+          married: data.married,
+          church_rate: Number(data.church_rate),
+          other_income: Number(data.other_income),
+          partner_income: Number(data.partner_income),
+          deductions: Number(data.deductions),
+          other_expenses: Number(data.other_expenses),
+        })
+      })
+  }, [])
 
   useEffect(() => {
     let abgebrochen = false
@@ -61,6 +86,8 @@ export default function Steuern() {
   const anteil = Math.min(1, umsatz / KLEINUNTERNEHMER_GRENZE)
   const grenzeStufe = umsatz > KLEINUNTERNEHMER_GRENZE ? 'drueber' : anteil >= 0.8 ? 'knapp' : 'gut'
   const rechnungenImJahr = rechnungen.filter((r) => r.invoice_date.startsWith(String(jahr))).length
+  const schaetzung = schaetzeSteuern(einnahmen.betrag, fahrten.betrag, profil, jahr)
+  const angabenLeer = Object.values(profil).every((wert) => !wert)
 
   return (
     <section className="seite">
@@ -102,12 +129,80 @@ export default function Steuern() {
         </article>
 
         <article className="karte kachel">
-          <span className="kachel-titel">Fahrten zu Klienten</span>
-          <span className="kachel-zahl">{formatiereEuro(fahrten.betrag)}</span>
+          <span className="kachel-titel">Steuerabgaben (geschätzt)</span>
+          <span className="kachel-zahl">≈ {formatiereEuro(schaetzung.durchAmica.summe)}</span>
           <p className="hinweis">
-            {fahrten.fahrten.length} Fahrten, {formatiereKm(fahrten.km)} hin und zurück. Gezählt wird jeder
-            erfasste Einsatz. Absetzbar mit {KM_PAUSCHALE.toFixed(2).replace('.', ',')} € je gefahrenem Kilometer.
+            So viel Steuern kommen durch Amica bisher in {jahr} ungefähr dazu. Lege dafür etwa{' '}
+            <strong>{formatiereEuro(schaetzung.durchAmica.summe / 12)} im Monat</strong> zurück.
           </p>
+          <dl className="steuer-rechnung">
+            <dt>Einnahmen</dt>
+            <dd>{formatiereEuro(einnahmen.betrag)}</dd>
+            <dt>− Fahrtkosten</dt>
+            <dd>{formatiereEuro(fahrten.betrag)}</dd>
+            {profil.other_expenses > 0 && (
+              <>
+                <dt>− weitere Ausgaben</dt>
+                <dd>{formatiereEuro(profil.other_expenses)}</dd>
+              </>
+            )}
+            <dt className="summe">= Gewinn</dt>
+            <dd className="summe">{formatiereEuro(schaetzung.gewinn)}</dd>
+            <dt>Einkommensteuer</dt>
+            <dd>{formatiereEuro(schaetzung.durchAmica.einkommensteuer)}</dd>
+            {schaetzung.durchAmica.soli > 0 && (
+              <>
+                <dt>Solidaritätszuschlag</dt>
+                <dd>{formatiereEuro(schaetzung.durchAmica.soli)}</dd>
+              </>
+            )}
+            {profil.church_rate > 0 && (
+              <>
+                <dt>Kirchensteuer</dt>
+                <dd>{formatiereEuro(schaetzung.durchAmica.kirche)}</dd>
+              </>
+            )}
+          </dl>
+          {angabenLeer && (
+            <p className="kachel-zusatz warnung">
+              Noch ohne deine Angaben gerechnet – als ob Amica dein einziges Einkommen wäre.
+            </p>
+          )}
+          {angabenOffen ? (
+            <Steuerangaben
+              profil={profil}
+              onAbbrechen={() => setAngabenOffen(false)}
+              onGespeichert={(neu) => {
+                setProfil(neu)
+                setAngabenOffen(false)
+              }}
+            />
+          ) : (
+            <button type="button" className="ghost schmal" onClick={() => setAngabenOffen(true)}>
+              {angabenLeer ? 'Meine Angaben eintragen' : 'Meine Angaben ändern'}
+            </button>
+          )}
+          <p className="feld-hinweis">
+            Berechnet mit dem Einkommensteuertarif {tarifJahr(jahr)}, ohne Kinderfreibeträge und
+            Sonderfälle. Gewerbesteuer fällt bei diesem Gewinn in der Regel nicht an.
+          </p>
+        </article>
+
+        <article className="karte kachel">
+          <span className="kachel-titel">Steuerersparnis durch Fahrten</span>
+          <span className="kachel-zahl">≈ {formatiereEuro(schaetzung.ersparnisFahrten)}</span>
+          <p className="hinweis">
+            {fahrten.fahrten.length} Fahrten mit {formatiereKm(fahrten.km)} (hin und zurück) ergeben{' '}
+            {formatiereEuro(fahrten.betrag)} Fahrtkosten zu je{' '}
+            {KM_PAUSCHALE.toFixed(2).replace('.', ',')} € pro km. Die ziehst du vom Gewinn ab – dadurch
+            zahlst du ungefähr so viel weniger Steuern.
+          </p>
+          {fahrten.betrag > 0 && schaetzung.ersparnisFahrten === 0 && (
+            <p className="kachel-zusatz">
+              Dein Einkommen liegt bisher unter dem steuerfreien Grundbetrag, deshalb sparst du im
+              Moment noch nichts. Das ändert sich, sobald mehr Einkommen dazukommt.
+            </p>
+          )}
           {fahrten.proKlient.length > 0 && (
             <ul className="fahrten-liste">
               {fahrten.proKlient.map((k) => (

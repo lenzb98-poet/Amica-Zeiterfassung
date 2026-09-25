@@ -87,3 +87,112 @@ export function umsatzImJahr(rechnungen: Rechnung[], jahr: number): number {
       .reduce((summe, r) => summe + Number(r.total), 0),
   )
 }
+
+/** Angaben, die die Einkommensteuer beeinflussen (alle Beträge pro Jahr). */
+export type Steuerprofil = {
+  married: boolean
+  /** 0 = keine Kirchensteuer, 8 (Bayern, Baden-Württemberg) oder 9 (übrige Länder). */
+  church_rate: number
+  /** Andere zu versteuernde Einkünfte, z. B. Gehalt oder Rente. */
+  other_income: number
+  /** Zu versteuerndes Einkommen des Ehepartners (nur bei Zusammenveranlagung). */
+  partner_income: number
+  /** Abzüge wie Kranken-/Pflegeversicherung und Altersvorsorge. */
+  deductions: number
+  /** Weitere Betriebsausgaben neben den Fahrten, z. B. Handy, Material. */
+  other_expenses: number
+}
+
+export const LEERES_PROFIL: Steuerprofil = {
+  married: false,
+  church_rate: 0,
+  other_income: 0,
+  partner_income: 0,
+  deductions: 0,
+  other_expenses: 0,
+}
+
+/** Einkommensteuer-Grundtarif nach § 32a EStG. */
+export function einkommensteuer(zvE: number, jahr: number): number {
+  const x = Math.floor(Math.max(0, zvE))
+  if (jahr <= 2025) {
+    if (x <= 12_096) return 0
+    if (x <= 17_443) {
+      const y = (x - 12_096) / 10_000
+      return Math.floor((932.3 * y + 1_400) * y)
+    }
+    if (x <= 68_480) {
+      const z = (x - 17_443) / 10_000
+      return Math.floor((176.64 * z + 2_397) * z + 1_015.13)
+    }
+    if (x <= 277_825) return Math.floor(0.42 * x - 10_911.92)
+    return Math.floor(0.45 * x - 19_246.67)
+  }
+  if (x <= 12_348) return 0
+  if (x <= 17_799) {
+    const y = (x - 12_348) / 10_000
+    return Math.floor((914.51 * y + 1_400) * y)
+  }
+  if (x <= 69_878) {
+    const z = (x - 17_799) / 10_000
+    return Math.floor((173.1 * z + 2_397) * z + 1_034.87)
+  }
+  if (x <= 277_825) return Math.floor(0.42 * x - 11_135.63)
+  return Math.floor(0.45 * x - 19_470.38)
+}
+
+/** Tarifjahr, das für die Berechnung verwendet wird. */
+export const tarifJahr = (jahr: number) => (jahr <= 2025 ? 2025 : 2026)
+
+function soli(est: number, verheiratet: boolean, jahr: number): number {
+  const freigrenze = (tarifJahr(jahr) === 2025 ? 19_950 : 20_350) * (verheiratet ? 2 : 1)
+  if (est <= freigrenze) return 0
+  return runde(Math.min(0.055 * est, 0.119 * (est - freigrenze)))
+}
+
+export type Steuern = { einkommensteuer: number; soli: number; kirche: number; summe: number }
+
+/** Steuern für ein zu versteuerndes Einkommen; bei Verheirateten mit Splitting. */
+export function steuernFuer(zvE: number, profil: Steuerprofil, jahr: number): Steuern {
+  const est = profil.married
+    ? 2 * einkommensteuer(Math.max(0, zvE) / 2, jahr)
+    : einkommensteuer(zvE, jahr)
+  const s = soli(est, profil.married, jahr)
+  const kirche = runde((est * profil.church_rate) / 100)
+  return { einkommensteuer: est, soli: s, kirche, summe: runde(est + s + kirche) }
+}
+
+const minus = (a: Steuern, b: Steuern): Steuern => ({
+  einkommensteuer: runde(a.einkommensteuer - b.einkommensteuer),
+  soli: runde(a.soli - b.soli),
+  kirche: runde(a.kirche - b.kirche),
+  summe: runde(a.summe - b.summe),
+})
+
+/**
+ * Schätzt, wie viel Steuern durch das Amica-Einkommen dazukommen und wie viel
+ * die Fahrten davon einsparen. Vereinfacht: ohne Pauschbeträge, Kinder und
+ * Sonderfälle – eine Orientierung zum Zurücklegen, keine Steuererklärung.
+ */
+export function schaetzeSteuern(
+  einnahmen: number,
+  fahrtkosten: number,
+  profil: Steuerprofil,
+  jahr: number,
+) {
+  const gewinn = runde(einnahmen - fahrtkosten - profil.other_expenses)
+  const grundlage =
+    profil.other_income + (profil.married ? profil.partner_income : 0) - profil.deductions
+
+  const ohneAmica = steuernFuer(grundlage, profil, jahr)
+  const mitAmica = steuernFuer(grundlage + gewinn, profil, jahr)
+  const ohneFahrtabzug = steuernFuer(grundlage + gewinn + fahrtkosten, profil, jahr)
+
+  return {
+    gewinn,
+    zvE: Math.max(0, runde(grundlage + gewinn)),
+    durchAmica: minus(mitAmica, ohneAmica),
+    ersparnisFahrten: runde(ohneFahrtabzug.summe - mitAmica.summe),
+    gesamt: mitAmica,
+  }
+}

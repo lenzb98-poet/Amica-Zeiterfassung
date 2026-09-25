@@ -186,9 +186,6 @@ export default function Rechnungen() {
     <section className="seite">
       <header className="seiten-kopf">
         <h2>Rechnungen</h2>
-        <button type="button" className="ghost schmal" onClick={() => setNachtragenOffen(true)}>
-          Rechnung nachtragen
-        </button>
       </header>
 
       {fehler && (
@@ -271,6 +268,18 @@ export default function Rechnungen() {
           ))}
         </ul>
       )}
+
+      <div className="karte formular">
+        <div className="nummernkreis-kopf">
+          <div>
+            <h3>Rechnung nachtragen</h3>
+            <p className="hinweis">Für Rechnungen, die du außerhalb der App geschrieben hast.</p>
+          </div>
+          <button type="button" className="ghost schmal" onClick={() => setNachtragenOffen(true)}>
+            Nachtragen
+          </button>
+        </div>
+      </div>
 
       <Nummernkreis
         letzteNummer={rechnungen.length ? Math.max(...rechnungen.map((r) => r.number_seq)) : null}

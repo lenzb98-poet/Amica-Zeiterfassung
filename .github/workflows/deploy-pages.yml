@@ -2,7 +2,10 @@ name: Auf GitHub Pages veröffentlichen
 
 on:
   push:
-    branches: [main, 'claude/**']
+    # Die Umgebung "github-pages" erlaubt das Veröffentlichen nur von diesen
+    # Branches. Ein zusätzlicher Lauf von main würde abgelehnt und dabei den
+    # gültigen Lauf abbrechen (gemeinsame concurrency-Gruppe).
+    branches: ['claude/**']
   workflow_dispatch:
 
 permissions:

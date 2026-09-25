@@ -15,6 +15,7 @@ import { FIRMA } from '../lib/firma'
 import RechnungAnsicht from './RechnungAnsicht'
 import Nummernkreis, { rechnungsnummer } from './Nummernkreis'
 import Aktionsmenue from './Aktionsmenue'
+import RechnungNachtragen from './RechnungNachtragen'
 
 type OffenerPosten = {
   klient: Klient
@@ -33,11 +34,18 @@ export default function Rechnungen() {
   const [fehler, setFehler] = useState<string | null>(null)
   const [erstelltGerade, setErstelltGerade] = useState<string | null>(null)
   const [offeneRechnung, setOffeneRechnung] = useState<Rechnung | null>(null)
+  const [nachtragenOffen, setNachtragenOffen] = useState(false)
 
   const schliessen = useZurueckWisch(
     offeneRechnung !== null,
     () => setOffeneRechnung(null),
     'rechnung-ansicht',
+  )
+
+  const nachtragenSchliessen = useZurueckWisch(
+    nachtragenOffen,
+    () => setNachtragenOffen(false),
+    'rechnung-nachtragen',
   )
 
   const laden = useCallback(async () => {
@@ -148,6 +156,21 @@ export default function Rechnungen() {
     setOffeneRechnung((r) => (r && r.id === rechnung.id ? { ...r, ...aenderung } : r))
   }
 
+  if (nachtragenOffen) {
+    return (
+      <RechnungNachtragen
+        klienten={klienten}
+        vergebeneNummern={rechnungen.map((r) => r.number_seq)}
+        onZurueck={nachtragenSchliessen}
+        onGespeichert={async (rechnung) => {
+          setNachtragenOffen(false)
+          await laden()
+          setOffeneRechnung(rechnung)
+        }}
+      />
+    )
+  }
+
   if (offeneRechnung) {
     return (
       <RechnungAnsicht
@@ -163,6 +186,9 @@ export default function Rechnungen() {
     <section className="seite">
       <header className="seiten-kopf">
         <h2>Rechnungen</h2>
+        <button type="button" className="ghost schmal" onClick={() => setNachtragenOffen(true)}>
+          Rechnung nachtragen
+        </button>
       </header>
 
       {fehler && (

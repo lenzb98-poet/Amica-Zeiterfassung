@@ -126,3 +126,15 @@ const kmFormat = new Intl.NumberFormat('de-DE', { maximumFractionDigits: 1 })
 export function formatiereKm(km: number): string {
   return `${kmFormat.format(km)} km`
 }
+
+/** "2" → 120, "1,75" → 105, "1:45" → 105 Minuten; ungültig oder leer → null. */
+export function leseStunden(eingabe: string): number | null {
+  const text = eingabe.trim()
+  const mitDoppelpunkt = /^(\d{1,2}):([0-5]\d)$/.exec(text)
+  if (mitDoppelpunkt) return Number(mitDoppelpunkt[1]) * 60 + Number(mitDoppelpunkt[2])
+  if (/^\d{1,2}([.,]\d{1,2})?$/.test(text)) {
+    const minuten = Math.round(Number(text.replace(',', '.')) * 60)
+    return minuten > 0 ? minuten : null
+  }
+  return null
+}

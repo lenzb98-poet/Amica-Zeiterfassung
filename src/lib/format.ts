@@ -111,3 +111,11 @@ export function vormonat(): string {
 export function monatsTitel(monat: string): string {
   return monatsFormat.format(new Date(`${monat}-01T00:00:00`))
 }
+
+/** Tage seit Ablauf des Zahlungsziels, 0 wenn noch nicht fällig. */
+export function tageUeberfaellig(rechnungsdatum: string, zahlungszielTage: number, heute = heuteIso()): number {
+  const faellig = new Date(`${rechnungsdatum}T00:00:00`)
+  faellig.setDate(faellig.getDate() + zahlungszielTage)
+  const tage = Math.round((new Date(`${heute}T00:00:00`).getTime() - faellig.getTime()) / 86_400_000)
+  return Math.max(0, tage)
+}

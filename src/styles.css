@@ -748,3 +748,10 @@ select {
 
 .seite { animation: einblenden 280ms cubic-bezier(0.25, 0.1, 0.25, 1); }
 .aktionsmenue-liste { animation: einblenden 200ms cubic-bezier(0.25, 0.1, 0.25, 1); }
+
+.status-ueberfaellig { background: rgba(168, 53, 44, 0.12); color: var(--danger); }
+.formular { scroll-margin-top: 16px; }
+
+.export-zeile { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.export-zeile .field { flex: 0 0 130px; }
+.export-zeile .primary { flex: 1; min-width: 200px; }

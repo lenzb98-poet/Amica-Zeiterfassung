@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Klient, Zeiteintrag } from '../lib/typen'
 import {
@@ -31,6 +31,8 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
   const [unterschrift, setUnterschrift] = useState<string | null>(null)
   const [unterschriftOffen, setUnterschriftOffen] = useState(false)
   const [speichert, setSpeichert] = useState(false)
+  const [bearbeiteterEintrag, setBearbeiteterEintrag] = useState<Zeiteintrag | null>(null)
+  const formularRef = useRef<HTMLFormElement>(null)
 
   useEffect(() => {
     ladeEintraege()
@@ -58,6 +60,25 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
 
   const dauerVorschau = start && ende ? berechneMinuten(start, ende) : null
 
+  function formularLeeren() {
+    setStart('')
+    setEnde('')
+    setNotiz('')
+    setUnterschrift(null)
+    setDatum(heuteIso())
+    setBearbeiteterEintrag(null)
+  }
+
+  function eintragBearbeiten(eintrag: Zeiteintrag) {
+    setBearbeiteterEintrag(eintrag)
+    setDatum(eintrag.entry_date)
+    setStart(eintrag.start_time?.slice(0, 5) ?? '')
+    setEnde(eintrag.end_time?.slice(0, 5) ?? '')
+    setNotiz(eintrag.note ?? '')
+    setUnterschrift(eintrag.signature)
+    formularRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
   async function eintragSpeichern(event: FormEvent) {
     event.preventDefault()
     if (speichert || !start || !ende) return
@@ -65,15 +86,17 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
     setSpeichert(true)
     setFehler(null)
 
-    const { error } = await supabase.from('time_entries').insert({
-      client_id: klient.id,
+    const daten = {
       entry_date: datum,
       start_time: start,
       end_time: ende,
       minutes: berechneMinuten(start, ende),
       note: notiz.trim() || null,
       signature: unterschrift,
-    })
+    }
+    const { error } = bearbeiteterEintrag
+      ? await supabase.from('time_entries').update(daten).eq('id', bearbeiteterEintrag.id)
+      : await supabase.from('time_entries').insert({ ...daten, client_id: klient.id })
 
     if (error) {
       setFehler('Der Eintrag konnte nicht gespeichert werden.')
@@ -81,11 +104,7 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
       return
     }
 
-    setStart('')
-    setEnde('')
-    setNotiz('')
-    setUnterschrift(null)
-    setDatum(heuteIso())
+    formularLeeren()
     setSpeichert(false)
     await ladeEintraege()
   }
@@ -101,6 +120,7 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
       setFehler('Der Eintrag konnte nicht gelöscht werden.')
       return
     }
+    if (bearbeiteterEintrag?.id === eintrag.id) formularLeeren()
     await ladeEintraege()
   }
 
@@ -127,8 +147,8 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
         </p>
       )}
 
-      <form className="karte formular" onSubmit={eintragSpeichern}>
-        <h3>Zeit eintragen</h3>
+      <form className="karte formular" onSubmit={eintragSpeichern} ref={formularRef}>
+        <h3>{bearbeiteterEintrag ? 'Eintrag bearbeiten' : 'Zeit eintragen'}</h3>
 
         <label className="field">
           Datum
@@ -180,9 +200,16 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
           )}
         </div>
 
-        <button type="submit" className="primary" disabled={speichert || !start || !ende}>
-          {speichert ? 'Speichern …' : 'Eintrag speichern'}
-        </button>
+        <div className="knopfreihe formular-knoepfe">
+          {bearbeiteterEintrag && (
+            <button type="button" className="ghost" onClick={formularLeeren}>
+              Abbrechen
+            </button>
+          )}
+          <button type="submit" className="primary" disabled={speichert || !start || !ende}>
+            {speichert ? 'Speichern …' : bearbeiteterEintrag ? 'Änderungen speichern' : 'Eintrag speichern'}
+          </button>
+        </div>
       </form>
 
       {laedt ? (
@@ -209,6 +236,7 @@ export default function Klientenseite({ klient, onZurueck }: Props) {
                       ) : (
                         <Aktionsmenue
                           label={`Aktionen für Eintrag vom ${formatiereDatum(eintrag.entry_date)}`}
+                          onBearbeiten={() => eintragBearbeiten(eintrag)}
                           onLoeschen={() => eintragLoeschen(eintrag)}
                         />
                       )}

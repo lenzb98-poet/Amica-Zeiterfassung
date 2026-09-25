@@ -7,12 +7,15 @@ import {
   formatiereEuro,
   monatsgrenzen,
   monatsTitel,
+  tageUeberfaellig,
   vormonat,
 } from '../lib/format'
 import { useZurueckWisch } from '../lib/zurueckWisch'
+import { FIRMA } from '../lib/firma'
 import RechnungAnsicht from './RechnungAnsicht'
 import Nummernkreis, { rechnungsnummer } from './Nummernkreis'
 import Aktionsmenue from './Aktionsmenue'
+import Jahresexport from './Jahresexport'
 
 type OffenerPosten = {
   klient: Klient
@@ -232,11 +235,7 @@ export default function Rechnungen() {
                   <span className="hinweis">
                     {rechnung.recipient.name} · {monatsTitel(rechnung.period_start.slice(0, 7))}
                   </span>
-                  <span className={`status status-${rechnung.status}`}>
-                    {rechnung.status === 'bezahlt'
-                      ? `bezahlt${rechnung.paid_at ? ` am ${formatiereDatumLang(rechnung.paid_at)}` : ''}`
-                      : 'offen'}
-                  </span>
+                  <StatusSchild rechnung={rechnung} />
                 </span>
               </button>
               <Aktionsmenue
@@ -248,10 +247,31 @@ export default function Rechnungen() {
         </ul>
       )}
 
+      <Jahresexport rechnungen={rechnungen} />
+
       <Nummernkreis
         letzteNummer={rechnungen.length ? Math.max(...rechnungen.map((r) => r.number_seq)) : null}
         aktualisierung={rechnungen.length}
       />
     </section>
   )
+}
+
+function StatusSchild({ rechnung }: { rechnung: Rechnung }) {
+  if (rechnung.status === 'bezahlt') {
+    return (
+      <span className="status status-bezahlt">
+        bezahlt{rechnung.paid_at && ` am ${formatiereDatumLang(rechnung.paid_at)}`}
+      </span>
+    )
+  }
+  const tage = tageUeberfaellig(rechnung.invoice_date, FIRMA.zahlungszielTage)
+  if (tage > 0) {
+    return (
+      <span className="status status-ueberfaellig">
+        überfällig seit {tage} {tage === 1 ? 'Tag' : 'Tagen'}
+      </span>
+    )
+  }
+  return <span className="status status-offen">offen</span>
 }

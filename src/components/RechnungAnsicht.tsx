@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Rechnung } from '../lib/typen'
 import { erzeugeRechnungsPdf, pdfDateiname } from '../lib/rechnungPdf'
 import PdfVorschau from './PdfVorschau'
+import { dateiHerunterladen, dateiTeilen, kannDateiTeilen } from '../lib/datei'
 
 type Props = {
   rechnung: Rechnung
@@ -33,26 +34,16 @@ export default function RechnungAnsicht({ rechnung, onZurueck, onStatusUmschalte
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [rechnung.id])
 
-  const kannTeilen =
-    pdf !== null && typeof navigator.canShare === 'function' && navigator.canShare({ files: [pdf] })
+  const kannTeilen = pdf !== null && kannDateiTeilen(pdf)
 
   async function teilen() {
     if (!pdf) return
-    try {
-      await navigator.share({ files: [pdf], title: `Rechnung ${rechnung.number}` })
-    } catch (e) {
-      if ((e as DOMException).name !== 'AbortError') setFehler('Teilen hat nicht geklappt.')
-    }
+    const geklappt = await dateiTeilen(pdf, `Rechnung ${rechnung.number}`)
+    if (!geklappt) setFehler('Teilen hat nicht geklappt.')
   }
 
   function herunterladen() {
-    if (!pdf) return
-    const url = URL.createObjectURL(pdf)
-    const link = document.createElement('a')
-    link.href = url
-    link.download = pdf.name
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(url), 60_000)
+    if (pdf) dateiHerunterladen(pdf)
   }
 
   function oeffnen() {

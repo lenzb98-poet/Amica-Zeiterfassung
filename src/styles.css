@@ -739,3 +739,12 @@ select {
    Drei-Punkte-Menü muss über den folgenden Karten liegen. */
 .karte { position: relative; }
 .karte:has(.aktionsmenue-knopf[aria-expanded="true"]) { z-index: 20; }
+
+/* Sanfte Überblendung ohne Bewegung beim Seitenwechsel und für Menüs. */
+@keyframes einblenden {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.seite { animation: einblenden 150ms ease-out; }
+.aktionsmenue-liste { animation: einblenden 120ms ease-out; }

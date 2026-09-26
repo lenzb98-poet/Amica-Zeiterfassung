@@ -129,29 +129,29 @@ export default function Steuern() {
               {einnahmen.offenAnzahl === 1 ? 'Rechnung' : 'Rechnungen'})
             </p>
           )}
-          {einnahmenMonate.length > 0 && (
-            <>
-              <button
-                type="button"
-                className="ghost schmal"
-                onClick={() => setMonateOffen((offen) => !offen)}
-                aria-expanded={monateOffen}
-              >
-                {monateOffen ? 'Nach Monat verbergen' : 'Nach Monat aufschlüsseln'}
-              </button>
-              {monateOffen && (
-                <dl className="steuer-rechnung">
-                  {einnahmenMonate.map((m) => (
-                    <Fragment key={m.monat}>
-                      <dt>
-                        {m.titel} ({m.anzahl} {m.anzahl === 1 ? 'Rechnung' : 'Rechnungen'})
-                      </dt>
-                      <dd>{formatiereEuro(m.betrag)}</dd>
-                    </Fragment>
-                  ))}
-                </dl>
-              )}
-            </>
+          <button
+            type="button"
+            className="ghost schmal"
+            onClick={() => setMonateOffen((offen) => !offen)}
+            aria-expanded={monateOffen}
+          >
+            {monateOffen ? 'Nach Monat verbergen' : 'Nach Monat aufschlüsseln'}
+          </button>
+          {monateOffen && (
+            einnahmenMonate.length > 0 ? (
+              <dl className="steuer-rechnung">
+                {einnahmenMonate.map((m) => (
+                  <Fragment key={m.monat}>
+                    <dt>
+                      {m.titel} ({m.anzahl} {m.anzahl === 1 ? 'Rechnung' : 'Rechnungen'})
+                    </dt>
+                    <dd>{formatiereEuro(m.betrag)}</dd>
+                  </Fragment>
+                ))}
+              </dl>
+            ) : (
+              <p className="hinweis">Noch keine bezahlten Rechnungen in {jahr}.</p>
+            )
           )}
         </article>
 

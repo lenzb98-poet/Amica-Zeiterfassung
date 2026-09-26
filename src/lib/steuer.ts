@@ -79,6 +79,31 @@ export function einnahmenImJahr(rechnungen: Rechnung[], jahr: number) {
   }
 }
 
+const MONATSNAMEN = [
+  'Januar', 'Februar', 'März', 'April', 'Mai', 'Juni',
+  'Juli', 'August', 'September', 'Oktober', 'November', 'Dezember',
+]
+
+export type Monatseinnahme = { monat: number; titel: string; betrag: number; anzahl: number }
+
+/** Bezahlte Einnahmen eines Jahres, aufgeschlüsselt nach Zahlungsmonat. */
+export function einnahmenNachMonat(rechnungen: Rechnung[], jahr: number): Monatseinnahme[] {
+  const bezahlt = rechnungen.filter(
+    (r) => r.status === 'bezahlt' && r.paid_at?.startsWith(String(jahr)),
+  )
+  return MONATSNAMEN.map((titel, i) => {
+    const monat = i + 1
+    const monatsSchluessel = `${jahr}-${String(monat).padStart(2, '0')}`
+    const inMonat = bezahlt.filter((r) => r.paid_at?.startsWith(monatsSchluessel))
+    return {
+      monat,
+      titel,
+      betrag: runde(inMonat.reduce((summe, r) => summe + Number(r.total), 0)),
+      anzahl: inMonat.length,
+    }
+  }).filter((m) => m.anzahl > 0)
+}
+
 /** Umsatz für die Kleinunternehmer-Grenze: alle Rechnungen mit Datum im Jahr. */
 export function umsatzImJahr(rechnungen: Rechnung[], jahr: number): number {
   return runde(

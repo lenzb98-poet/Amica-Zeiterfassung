@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Klient, Rechnung, Zeiteintrag } from '../lib/typen'
 import { formatiereEuro, formatiereKm } from '../lib/format'
@@ -8,6 +8,7 @@ import {
   LEERES_PROFIL,
   berechneFahrten,
   einnahmenImJahr,
+  einnahmenNachMonat,
   schaetzeSteuern,
   tarifJahr,
   umsatzImJahr,
@@ -28,6 +29,7 @@ export default function Steuern() {
   const [fehler, setFehler] = useState<string | null>(null)
   const [profil, setProfil] = useState<Steuerprofil>(LEERES_PROFIL)
   const [angabenOffen, setAngabenOffen] = useState(false)
+  const [monateOffen, setMonateOffen] = useState(false)
 
   useEffect(() => {
     supabase
@@ -81,6 +83,7 @@ export default function Steuern() {
   }, [rechnungen])
 
   const einnahmen = einnahmenImJahr(rechnungen, jahr)
+  const einnahmenMonate = useMemo(() => einnahmenNachMonat(rechnungen, jahr), [rechnungen, jahr])
   const fahrten = useMemo(() => berechneFahrten(eintraege, klienten), [eintraege, klienten])
   const umsatz = umsatzImJahr(rechnungen, jahr)
   const anteil = Math.min(1, umsatz / KLEINUNTERNEHMER_GRENZE)
@@ -125,6 +128,30 @@ export default function Steuern() {
               Noch offen: {formatiereEuro(einnahmen.offenBetrag)} ({einnahmen.offenAnzahl}{' '}
               {einnahmen.offenAnzahl === 1 ? 'Rechnung' : 'Rechnungen'})
             </p>
+          )}
+          {einnahmenMonate.length > 0 && (
+            <>
+              <button
+                type="button"
+                className="ghost schmal"
+                onClick={() => setMonateOffen((offen) => !offen)}
+                aria-expanded={monateOffen}
+              >
+                {monateOffen ? 'Nach Monat verbergen' : 'Nach Monat aufschlüsseln'}
+              </button>
+              {monateOffen && (
+                <dl className="steuer-rechnung">
+                  {einnahmenMonate.map((m) => (
+                    <Fragment key={m.monat}>
+                      <dt>
+                        {m.titel} ({m.anzahl} {m.anzahl === 1 ? 'Rechnung' : 'Rechnungen'})
+                      </dt>
+                      <dd>{formatiereEuro(m.betrag)}</dd>
+                    </Fragment>
+                  ))}
+                </dl>
+              )}
+            </>
           )}
         </article>
 

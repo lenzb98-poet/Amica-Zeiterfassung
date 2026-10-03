@@ -269,7 +269,13 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
             ],
           },
           {
+            text: 'Gemäß § 19 UStG wird aufgrund der Kleinunternehmerregelung keine Umsatzsteuer erhoben.',
+            fontSize: 8.5,
+            color: FARBE.grau,
             margin: [mm(2), mm(1.5), mm(2), 0],
+          },
+          {
+            margin: [mm(2), mm(1), mm(2), 0],
             columns: [
               { text: 'Rechnungsbetrag', color: FARBE.gruen, bold: true, fontSize: 12 },
               {
@@ -280,12 +286,6 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
                 width: 'auto',
               },
             ],
-          },
-          {
-            text: 'Gemäß § 19 UStG wird aufgrund der Kleinunternehmerregelung keine Umsatzsteuer erhoben.',
-            fontSize: 8.5,
-            color: FARBE.grau,
-            margin: [0, mm(2), 0, 0],
           },
         ],
       },

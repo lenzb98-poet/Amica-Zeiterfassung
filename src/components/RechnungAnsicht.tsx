@@ -60,15 +60,19 @@ export default function RechnungAnsicht({ rechnung, onZurueck, onStatusUmschalte
       </button>
 
       <div className="rechnung-werkzeuge">
-        {kannTeilen ? (
+        {kannTeilen && (
           <button type="button" className="primary" onClick={teilen} disabled={!pdf}>
             PDF teilen
           </button>
-        ) : (
-          <button type="button" className="primary" onClick={herunterladen} disabled={!pdf}>
-            PDF herunterladen
-          </button>
         )}
+        <button
+          type="button"
+          className={kannTeilen ? 'ghost' : 'primary'}
+          onClick={herunterladen}
+          disabled={!pdf}
+        >
+          PDF herunterladen
+        </button>
         <button type="button" className="ghost" onClick={oeffnen} disabled={!pdf}>
           PDF öffnen
         </button>

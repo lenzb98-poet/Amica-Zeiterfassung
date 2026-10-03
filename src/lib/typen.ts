@@ -5,6 +5,8 @@ export const STANDARD_LEISTUNG = 'Hilfe im Haushalt'
 export type Klient = {
   id: string
   name: string
+  first_name: string | null
+  last_name: string | null
   info: string | null
   photo_path: string | null
   hourly_rate: number | null

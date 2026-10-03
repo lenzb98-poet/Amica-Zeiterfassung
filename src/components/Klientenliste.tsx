@@ -16,7 +16,8 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   const [formularOffen, setFormularOffen] = useState(false)
   const [bearbeiteterKlient, setBearbeiteterKlient] = useState<Klient | null>(null)
 
-  const [name, setName] = useState('')
+  const [vorname, setVorname] = useState('')
+  const [nachname, setNachname] = useState('')
   const [info, setInfo] = useState('')
   const [stundensatz, setStundensatz] = useState('')
   const [entfernung, setEntfernung] = useState('')
@@ -51,7 +52,8 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   }
 
   function formularZuruecksetzen() {
-    setName('')
+    setVorname('')
+    setNachname('')
     setInfo('')
     setStundensatz('')
     setEntfernung('')
@@ -73,7 +75,8 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
       return
     }
     setBearbeiteterKlient(null)
-    setName('')
+    setVorname('')
+    setNachname('')
     setInfo('')
     setStundensatz('')
     setEntfernung('')
@@ -90,7 +93,8 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   function formularZumBearbeitenOeffnen(klient: Klient) {
     setBearbeiteterKlient(klient)
-    setName(klient.name)
+    setVorname(klient.first_name ?? '')
+    setNachname(klient.last_name ?? '')
     setInfo(klient.info ?? '')
     setStundensatz(
       klient.hourly_rate === null ? '' : klient.hourly_rate.toFixed(2).replace('.', ',')
@@ -126,7 +130,9 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   function stammdaten() {
     return {
-      name: name.trim(),
+      name: [vorname.trim(), nachname.trim()].filter(Boolean).join(' '),
+      first_name: vorname.trim() || null,
+      last_name: nachname.trim() || null,
       info: info.trim() || null,
       hourly_rate: satz,
       distance_km: km,
@@ -141,7 +147,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   async function klientAnlegen(event: FormEvent) {
     event.preventDefault()
-    if (speichert || !name.trim() || eingabeUngueltig) return
+    if (speichert || !nachname.trim() || eingabeUngueltig) return
 
     setSpeichert(true)
     setFehler(null)
@@ -172,7 +178,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
 
   async function klientAktualisieren(event: FormEvent) {
     event.preventDefault()
-    if (speichert || !name.trim() || eingabeUngueltig || !bearbeiteterKlient) return
+    if (speichert || !nachname.trim() || eingabeUngueltig || !bearbeiteterKlient) return
 
     setSpeichert(true)
     setFehler(null)
@@ -255,16 +261,24 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
         >
           <h3>{bearbeiteterKlient ? 'Klient bearbeiten' : 'Neuer Klient'}</h3>
 
-          <label className="field">
-            Name
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Vor- und Nachname"
-              required
-              autoFocus
-            />
-          </label>
+          <div className="feldpaar">
+            <label className="field">
+              Vorname
+              <input
+                value={vorname}
+                onChange={(e) => setVorname(e.target.value)}
+                autoFocus
+              />
+            </label>
+            <label className="field">
+              Nachname
+              <input
+                value={nachname}
+                onChange={(e) => setNachname(e.target.value)}
+                required
+              />
+            </label>
+          </div>
 
           <label className="field">
             Anrede
@@ -391,7 +405,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
             <button type="button" className="ghost" onClick={formularZuruecksetzen}>
               Abbrechen
             </button>
-            <button type="submit" className="primary" disabled={speichert || !name.trim() || eingabeUngueltig}>
+            <button type="submit" className="primary" disabled={speichert || !nachname.trim() || eingabeUngueltig}>
               {speichert ? 'Speichern …' : bearbeiteterKlient ? 'Änderungen speichern' : 'Klient anlegen'}
             </button>
           </div>

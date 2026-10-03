@@ -21,6 +21,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
   const [stundensatz, setStundensatz] = useState('')
   const [entfernung, setEntfernung] = useState('')
   const [anrede, setAnrede] = useState<Anrede | ''>('')
+  const [firma, setFirma] = useState('')
   const [strasse, setStrasse] = useState('')
   const [plz, setPlz] = useState('')
   const [ort, setOrt] = useState('')
@@ -55,6 +56,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setStundensatz('')
     setEntfernung('')
     setAnrede('')
+    setFirma('')
     setStrasse('')
     setPlz('')
     setOrt('')
@@ -76,6 +78,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     setStundensatz('')
     setEntfernung('')
     setAnrede('')
+    setFirma('')
     setStrasse('')
     setPlz('')
     setOrt('')
@@ -94,6 +97,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
     )
     setEntfernung(klient.distance_km === null ? '' : String(klient.distance_km).replace('.', ','))
     setAnrede(klient.salutation ?? '')
+    setFirma(klient.company ?? '')
     setStrasse(klient.street ?? '')
     setPlz(klient.postal_code ?? '')
     setOrt(klient.city ?? '')
@@ -127,6 +131,7 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
       hourly_rate: satz,
       distance_km: km,
       salutation: anrede || null,
+      company: firma.trim() || null,
       street: strasse.trim() || null,
       postal_code: plz.trim() || null,
       city: ort.trim() || null,
@@ -268,6 +273,16 @@ export default function Klientenliste({ onKlientOeffnen }: Props) {
               <option value="Frau">Frau</option>
               <option value="Herr">Herr</option>
             </select>
+          </label>
+
+          <label className="field">
+            Firma (erscheint auf der Rechnung)
+            <input
+              value={firma}
+              onChange={(e) => setFirma(e.target.value)}
+              autoComplete="off"
+              placeholder="optional"
+            />
           </label>
 
           <label className="field">

@@ -9,6 +9,7 @@ export type Klient = {
   photo_path: string | null
   hourly_rate: number | null
   salutation: Anrede | null
+  company: string | null
   street: string | null
   postal_code: string | null
   city: string | null
@@ -59,6 +60,7 @@ export type Rechnung = {
   recipient: {
     salutation: Anrede | null
     name: string
+    company: string | null
     street: string | null
     postal_code: string | null
     city: string | null

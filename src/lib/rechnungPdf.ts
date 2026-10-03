@@ -91,6 +91,7 @@ function dokument(rechnung: Rechnung, logo: string, unterschrift: string): TDocu
   const empfaenger = [
     r.salutation,
     r.name,
+    r.company,
     r.street,
     [r.postal_code, r.city].filter(Boolean).join(' '),
   ].filter((zeile): zeile is string => Boolean(zeile))

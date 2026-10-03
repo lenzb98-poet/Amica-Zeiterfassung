@@ -28,6 +28,7 @@ export default function RechnungNachtragen({ klienten, vergebeneNummern, onZurue
   const [klientId, setKlientId] = useState('')
   const [anrede, setAnrede] = useState<Anrede | ''>('')
   const [name, setName] = useState('')
+  const [firma, setFirma] = useState('')
   const [strasse, setStrasse] = useState('')
   const [plz, setPlz] = useState('')
   const [ort, setOrt] = useState('')
@@ -46,6 +47,7 @@ export default function RechnungNachtragen({ klienten, vergebeneNummern, onZurue
     if (!klient) return
     setAnrede(klient.salutation ?? '')
     setName(klient.name)
+    setFirma(klient.company ?? '')
     setStrasse(klient.street ?? '')
     setPlz(klient.postal_code ?? '')
     setOrt(klient.city ?? '')
@@ -103,6 +105,7 @@ export default function RechnungNachtragen({ klienten, vergebeneNummern, onZurue
         recipient: {
           salutation: anrede || null,
           name: name.trim(),
+          company: firma.trim() || null,
           street: strasse.trim() || null,
           postal_code: plz.trim() || null,
           city: ort.trim() || null,
@@ -209,6 +212,10 @@ export default function RechnungNachtragen({ klienten, vergebeneNummern, onZurue
               <input value={name} onChange={(e) => setName(e.target.value)} required />
             </label>
           </div>
+          <label className="field">
+            Firma (erscheint auf der Rechnung)
+            <input value={firma} onChange={(e) => setFirma(e.target.value)} placeholder="optional" />
+          </label>
           <label className="field">
             Straße und Hausnummer
             <input value={strasse} onChange={(e) => setStrasse(e.target.value)} />

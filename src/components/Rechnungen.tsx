@@ -312,7 +312,7 @@ export default function Rechnungen() {
       </div>
 
       <Nummernkreis
-        letzteNummer={rechnungen.length ? Math.max(...rechnungen.map((r) => r.number_seq)) : null}
+        vergebeneNummern={rechnungen.map((r) => r.number_seq)}
         aktualisierung={rechnungen.length}
       />
     </section>

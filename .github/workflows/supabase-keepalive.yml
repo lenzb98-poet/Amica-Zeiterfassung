@@ -1,0 +1,30 @@
+name: Supabase wachhalten
+
+# Das kostenlose Supabase-Projekt wird nach einer Woche ohne Aktivität
+# pausiert. Diese Abfrage von außen hält es alle paar Tage aktiv. Zusätzlich
+# läuft in der Datenbank selbst der Job "amica-keepalive".
+on:
+  schedule:
+    - cron: '17 6 */3 * *'
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: supabase-keepalive
+  cancel-in-progress: false
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Datenbank abfragen
+        run: |
+          # Der publishable Key ist öffentlich und steckt auch in der App.
+          status=$(curl -sS -o /dev/null -w '%{http_code}' \
+            --retry 3 --retry-delay 10 \
+            -H 'apikey: sb_publishable_35m9-QrHkksaotEWsS12RQ_cVjTb6RU' \
+            'https://eafexkyezkymlckfrztk.supabase.co/rest/v1/clients?select=id&limit=1')
+          echo "Antwort: $status"
+          test "$status" = "200"
